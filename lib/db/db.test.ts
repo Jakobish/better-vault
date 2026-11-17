@@ -112,6 +112,8 @@ describe.each(backends)("%s store", (name, create) => {
       });
       await updateNotebook(notebookId, { folderId: null });
       expect((await store().getNotebook(notebookId))?.folderId ?? null).toBeNull();
+      await updateNotebook(notebookId, { chatInstructions: "Use concise Hebrew." });
+      expect((await store().getNotebook(notebookId))?.chatInstructions).toBe("Use concise Hebrew.");
     });
   });
 
@@ -424,6 +426,7 @@ describe.each(backends)("%s store", (name, create) => {
   describe("backup", () => {
     it("round-trips notebooks and rebuilds passages, without settings", async () => {
       const notebookId = await createNotebook("Kept");
+      await updateNotebook(notebookId, { chatInstructions: "Write in a concise, formal tone." });
       await addSource({ notebookId, title: "a", kind: "text", text: "hello world" });
       await updateProvider("openai", { enabled: true, apiKey: "secret" });
       const backup = await exportBackup();
@@ -431,6 +434,9 @@ describe.each(backends)("%s store", (name, create) => {
       await deleteAllData();
       expect(await importBackup(JSON.parse(JSON.stringify(backup)))).toBe(1);
       expect((await store().listNotebooks())[0].title).toBe("Kept");
+      expect((await store().getNotebook(notebookId))?.chatInstructions).toBe(
+        "Write in a concise, formal tone.",
+      );
       expect(await store().count("chunks")).toBe(1);
     });
 
@@ -438,7 +444,7 @@ describe.each(backends)("%s store", (name, create) => {
       const notebookId = await createNotebook("Kept");
       await saveChat({ id: id("backup-c"), notebookId }, [userMessage("a", "Hello there")]);
       const backup = await exportBackup();
-      expect(backup.format).toBe(6);
+      expect(backup.format).toBe(7);
       await deleteAllData();
       await importBackup(JSON.parse(JSON.stringify(backup)));
       expect((await store().getConversation(id("backup-c")))?.title).toBe("Hello there");

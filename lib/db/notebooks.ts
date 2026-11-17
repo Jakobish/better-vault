@@ -19,8 +19,11 @@ export async function pinNotebook(id: string, pinned: boolean) {
   await store().patchNotebook(id, { pinned: pinned || undefined });
 }
 
-/** Changes a notebook's icon, colour or folder. Moving it does not change its place in "recent". */
-export async function updateNotebook(id: string, patch: NotebookLook) {
+/** Changes a notebook's appearance, folder or chat instructions. */
+export async function updateNotebook(
+  id: string,
+  patch: NotebookLook & Pick<Notebook, "chatInstructions">,
+) {
   await store().patchNotebook(id, patch);
 }
 

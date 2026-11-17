@@ -34,6 +34,7 @@ const bodySchema = z.object({
   credentials: credentialsSchema,
   effort: effortSchema,
   passages: z.array(passageSchema).max(2000),
+  chatInstructions: z.string().max(10_000).optional(),
   /** Skills the user attached to the chat (SKILL.md files from the vault). */
   skills: z
     .array(
@@ -102,7 +103,11 @@ export async function POST(request: Request) {
   const visuals = parsed.data.visuals && !providers[model.provider].local;
   const searchTools = mode === "web" ? createWebSearchTools(model, credentials) : undefined;
   const tools = visuals ? { ...searchTools, ...createVisualTools() } : searchTools;
-  const options = { skills: parsed.data.skills, visuals };
+  const options = {
+    skills: parsed.data.skills,
+    visuals,
+    chatInstructions: parsed.data.chatInstructions,
+  };
   const system = chatSystemPrompt(mode, passages, options);
   const instructions = chatSystemPrompt(mode, [], options).length;
   const result = streamText({

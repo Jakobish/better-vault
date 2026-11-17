@@ -26,7 +26,7 @@ export function Workspace({ notebookId }: { notebookId: string }) {
   if (notebook === null) return <NotebookNotFound />;
   return (
     <WorkspaceProvider notebook={notebook}>
-      <ChatProvider notebookId={notebook.id}>
+      <ChatProvider notebookId={notebook.id} chatInstructions={notebook.chatInstructions}>
         <StudioRunnerProvider notebookId={notebook.id}>
           <WorkspaceLayout />
         </StudioRunnerProvider>
