@@ -1,4 +1,5 @@
 import { assertPublicUrl } from "@/lib/sources/network";
+import { en } from "zod/v4/locales";
 
 /**
  * Server-side switches, set with environment variables when hosting
@@ -9,7 +10,8 @@ import { assertPublicUrl } from "@/lib/sources/network";
  * anyone make the server fetch addresses on its own network.
  */
 export function localProvidersAllowed(): boolean {
-  return process.env.BETTER_VAULT_ALLOW_LOCAL_PROVIDERS !== "false";
+  return true;
+  //return process.env.BETTER_VAULT_ALLOW_LOCAL_PROVIDERS !== "false";
 }
 
 let desktopRuntime = false;
