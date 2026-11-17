@@ -122,6 +122,11 @@ export function credentialsFor(settings: AppSettings, id: ProviderId): ProviderC
   if (usesChatGPT(settings, id)) return { chatgpt: true };
   if (!providers[id].needsKey)
     return { baseURL: saved.baseURL.trim() || providers[id].defaultBaseURL };
+  if (id === "openai")
+    return {
+      apiKey: saved.apiKey.trim(),
+      baseURL: saved.baseURL.trim() || providers[id].defaultBaseURL,
+    };
   // OpenCode's address picks the plan (Zen or Go); the server only accepts those two.
   if (id === "opencode")
     return { apiKey: saved.apiKey.trim(), baseURL: saved.baseURL || providers[id].defaultBaseURL };
@@ -139,7 +144,13 @@ export function imageCredentialsFrom(
   settings: AppSettings,
   id: ProviderId,
 ): ProviderCredentials | null {
-  return canDrawPictures(settings, id) ? { apiKey: settings.providers[id].apiKey.trim() } : null;
+  if (!canDrawPictures(settings, id)) return null;
+  return {
+    apiKey: settings.providers[id].apiKey.trim(),
+    ...(id === "openai"
+      ? { baseURL: settings.providers[id].baseURL.trim() || providers[id].defaultBaseURL }
+      : {}),
+  };
 }
 
 /** The credentials for a speech model: its provider's API key, when it is on. */

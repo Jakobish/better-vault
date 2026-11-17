@@ -101,6 +101,7 @@ export const providers: Record<ProviderId, ProviderInfo> = {
     name: "OpenAI",
     local: false,
     needsKey: true,
+    defaultBaseURL: "https://api.openai.com/v1",
     webSearch: true,
     keyUrl: "https://platform.openai.com/api-keys",
     suggestedModels: ["gpt-6.1-sol", "gpt-6-sol", "gpt-6-luna", "gpt-5.5", "gpt-5.4-mini"],
