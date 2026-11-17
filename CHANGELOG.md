@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- Settings → AI providers: OpenAI accepts a custom API base URL for chat, model loading, web search and image generation.
+
+### Fixed
+
+- Side sheets enter, exit and respond to swipes in the expected direction in right-to-left languages.
+
 ## [0.7.0] - 2026-11-10
 
 ### Added
