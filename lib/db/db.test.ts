@@ -15,6 +15,7 @@ import {
   deleteConversation,
   latestConversation,
   loadChat,
+  removeChatMessage,
   renameConversation,
   saveChat,
 } from "./messages";
@@ -368,6 +369,30 @@ describe.each(backends)("%s store", (name, create) => {
       expect((await loadChat(id("c1"))).map((m) => m.id)).toEqual(["a"]);
       expect((await store().getConversation(id("c1")))?.title).toBe("What is a cache?");
       expect((await latestConversation(notebookId))?.id).toBe(id("c2"));
+    });
+
+    it("deletes one message and removes its conversation when empty", async () => {
+      const notebookId = await createNotebook("Test");
+      const conversation = { id: id("remove-message"), notebookId };
+      const messages = [
+        userMessage("a", "First"),
+        userMessage("b", "Second"),
+        userMessage("c", "Third"),
+      ];
+      await saveChat(conversation, messages);
+
+      const remaining = await removeChatMessage(conversation, messages, "a");
+      expect(remaining.map((message) => message.id)).toEqual(["b", "c"]);
+      expect((await loadChat(conversation.id)).map((message) => message.id)).toEqual(["b", "c"]);
+      expect((await store().getConversation(conversation.id))?.title).toBe("Second");
+
+      await renameConversation(conversation.id, "My saved title");
+      const afterRename = await removeChatMessage(conversation, remaining, "b");
+      expect((await store().getConversation(conversation.id))?.title).toBe("My saved title");
+
+      expect(await removeChatMessage(conversation, afterRename, "c")).toEqual([]);
+      expect(await store().getConversation(conversation.id)).toBeUndefined();
+      expect(await loadChat(conversation.id)).toEqual([]);
     });
 
     it("keeps a renamed title when the chat goes on, and deletes a conversation", async () => {

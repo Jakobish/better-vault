@@ -58,7 +58,9 @@
     "label": "Message actions",
     "copy": "Copy",
     "copied": "Copied",
-    "retry": "Try again"
+    "retry": "Try again",
+    "sendAgain": "Send again",
+    "delete": "Delete message"
   },
   "error": "The answer could not be completed: {{error}}",
   "newChat": "New chat",

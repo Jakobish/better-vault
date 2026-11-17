@@ -1,4 +1,4 @@
-import { Globe02Icon, RepeatIcon } from "@hugeicons/core-free-icons";
+import { Delete02Icon, Globe02Icon, RepeatIcon } from "@hugeicons/core-free-icons";
 import { getToolName, isToolUIPart } from "ai";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,7 +26,9 @@ interface AssistantMessageProps {
   message: ChatMessage;
   streaming: boolean;
   isLast: boolean;
+  actionsDisabled: boolean;
   onRetry: () => void;
+  onDelete: () => void;
   onOpenPassage: (passage: PassageRef) => void;
 }
 
@@ -35,7 +37,9 @@ export function AssistantMessage({
   message,
   streaming,
   isLast,
+  actionsDisabled,
   onRetry,
+  onDelete,
   onOpenPassage,
 }: AssistantMessageProps) {
   const { t } = useTranslation("chat");
@@ -175,18 +179,31 @@ export function AssistantMessage({
             summary={summary}
           />
         ) : null}
-        {!streaming && text ? (
+        {!streaming ? (
           <Message.Actions aria-label={t("actions.label")} reveal={isLast ? "always" : "hover"}>
-            <Message.Action
-              label={t("actions.copy")}
-              copiedLabel={t("actions.copied")}
-              copy={() => stripCitations(text)}
-            />
-            {isLast ? (
-              <Message.Action label={t("actions.retry")} onClick={onRetry}>
+            {text ? (
+              <Message.Action
+                label={t("actions.copy")}
+                copiedLabel={t("actions.copied")}
+                copy={() => stripCitations(text)}
+              />
+            ) : null}
+            {isLast && text ? (
+              <Message.Action
+                label={t("actions.retry")}
+                disabled={actionsDisabled}
+                onClick={onRetry}
+              >
                 <Icon icon={RepeatIcon} />
               </Message.Action>
             ) : null}
+            <Message.Action
+              label={t("actions.delete")}
+              disabled={actionsDisabled}
+              onClick={onDelete}
+            >
+              <Icon icon={Delete02Icon} />
+            </Message.Action>
           </Message.Actions>
         ) : null}
       </Message.Content>

@@ -1,4 +1,4 @@
-import { Book02Icon, Idea01Icon } from "@hugeicons/core-free-icons";
+import { Book02Icon, Delete02Icon, Idea01Icon, RepeatIcon } from "@hugeicons/core-free-icons";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -31,12 +31,13 @@ export function ChatView() {
 
   if (chat.messages.length === 0) return <EmptyChat />;
 
-  const retry = () =>
-    chat
-      .retry()
-      .catch((error: unknown) =>
-        toast.error(error instanceof Error ? error.message : String(error)),
-      );
+  const runAction = (action: () => Promise<void>) => {
+    void action().catch((error: unknown) =>
+      toast.error(error instanceof Error ? error.message : String(error)),
+    );
+  };
+  const retry = () => runAction(chat.retry);
+  const busy = chat.status === "submitted" || chat.status === "streaming";
 
   return (
     <ScrollArea className="h-full" viewportRef={scroller}>
@@ -44,7 +45,7 @@ export function ChatView() {
         {chat.messages.map((message, at) =>
           message.role === "user" ? (
             <Message key={message.id} from="user">
-              <Message.Content>
+              <Message.Content className="gap-1">
                 <Message.Bubble>
                   <Message.BubbleContent className="whitespace-pre-wrap">
                     {message.parts
@@ -52,6 +53,26 @@ export function ChatView() {
                       .join("\n")}
                   </Message.BubbleContent>
                 </Message.Bubble>
+                <Message.Actions
+                  aria-label={t("actions.label")}
+                  reveal={at === chat.messages.length - 1 ? "always" : "hover"}
+                  className="justify-end"
+                >
+                  <Message.Action
+                    label={t("actions.sendAgain")}
+                    disabled={busy}
+                    onClick={() => runAction(() => chat.resend(message))}
+                  >
+                    <Icon icon={RepeatIcon} />
+                  </Message.Action>
+                  <Message.Action
+                    label={t("actions.delete")}
+                    disabled={busy}
+                    onClick={() => runAction(() => chat.removeMessage(message.id))}
+                  >
+                    <Icon icon={Delete02Icon} />
+                  </Message.Action>
+                </Message.Actions>
               </Message.Content>
             </Message>
           ) : (
@@ -60,7 +81,9 @@ export function ChatView() {
               message={message}
               streaming={chat.status === "streaming" && at === chat.messages.length - 1}
               isLast={at === chat.messages.length - 1}
+              actionsDisabled={busy}
               onRetry={retry}
+              onDelete={() => runAction(() => chat.removeMessage(message.id))}
               onOpenPassage={(passage) => readSource(passage.sourceId, passage.chunkId)}
             />
           ),

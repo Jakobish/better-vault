@@ -47,6 +47,27 @@ export async function saveChat(
   );
 }
 
+/** Removes one message, deleting its conversation when no messages remain. */
+export async function removeChatMessage(
+  conversation: { id: string; notebookId: string },
+  messages: ChatMessage[],
+  messageId: string,
+): Promise<ChatMessage[]> {
+  const remaining = messages.filter((message) => message.id !== messageId);
+  if (remaining.length === messages.length) return messages;
+  if (remaining.length === 0) {
+    await deleteConversation(conversation.id);
+  } else {
+    const saved = await store().getConversation(conversation.id);
+    const hasAutomaticTitle = saved?.title === conversationTitle(messages);
+    await saveChat(conversation, remaining);
+    if (hasAutomaticTitle) {
+      await store().patchConversation(conversation.id, { title: conversationTitle(remaining) });
+    }
+  }
+  return remaining;
+}
+
 /** The conversation used most recently in a notebook, if any. */
 export async function latestConversation(notebookId: string): Promise<Conversation | undefined> {
   return (await store().listConversations(notebookId))[0];

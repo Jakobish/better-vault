@@ -12,7 +12,7 @@ import {
 import { stableContext } from "@/lib/context";
 import { providers } from "@/lib/ai/catalog";
 import type { ChatMessage, ChatMode } from "@/lib/chat/types";
-import { latestConversation, loadChat, saveChat } from "@/lib/db/messages";
+import { latestConversation, loadChat, removeChatMessage, saveChat } from "@/lib/db/messages";
 import {
   activeModel,
   contextCharsFor,
@@ -40,6 +40,8 @@ interface ChatSession {
   skills: string[];
   setSkills: (ids: string[]) => void;
   send: (text: string) => Promise<void>;
+  resend: (message: ChatMessage) => Promise<void>;
+  removeMessage: (messageId: string) => Promise<void>;
   retry: () => Promise<void>;
   stop: () => void;
   /** Starts an empty conversation. */
@@ -202,7 +204,31 @@ function ChatRunner({
     [notebookId, mode, skills, chatInstructions],
   );
 
-  const { sendMessage, regenerate, stop, messages, status, error } = chat;
+  const { sendMessage, regenerate, stop, messages, setMessages, status, error } = chat;
+
+  const send = useCallback(
+    async (text: string) => {
+      const body = await requestFor(text);
+      await sendMessage({ text, metadata: { createdAt: Date.now() } }, { body });
+    },
+    [requestFor, sendMessage],
+  );
+  const resend = useCallback(async (message: ChatMessage) => send(textOf(message)), [send]);
+  const removeMessage = useCallback(
+    async (messageId: string) => {
+      const remaining = await removeChatMessage(
+        { id: instance.id, notebookId },
+        messages,
+        messageId,
+      );
+      if (remaining.length === 0) {
+        startNew();
+      } else {
+        setMessages(remaining);
+      }
+    },
+    [instance.id, notebookId, messages, setMessages, startNew],
+  );
 
   const value = useMemo<ChatSession>(
     () => ({
@@ -214,10 +240,9 @@ function ChatRunner({
       setMode,
       skills,
       setSkills,
-      send: async (text) => {
-        const body = await requestFor(text);
-        await sendMessage({ text, metadata: { createdAt: Date.now() } }, { body });
-      },
+      send,
+      resend,
+      removeMessage,
       retry: async () => {
         const question = textOf([...messages].reverse().find((message) => message.role === "user"));
         await regenerate({ body: await requestFor(question) });
@@ -233,10 +258,12 @@ function ChatRunner({
       setSkills,
       status,
       error,
-      mode,
       setMode,
+      mode,
       requestFor,
-      sendMessage,
+      send,
+      resend,
+      removeMessage,
       regenerate,
       stop,
       startNew,
