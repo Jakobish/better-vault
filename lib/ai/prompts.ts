@@ -14,7 +14,11 @@ export interface ChatSkill {
 export function chatSystemPrompt(
   mode: ChatMode,
   passages: readonly Passage[],
-  { skills = [], visuals = false }: { skills?: readonly ChatSkill[]; visuals?: boolean } = {},
+  {
+    skills = [],
+    visuals = false,
+    chatInstructions,
+  }: { skills?: readonly ChatSkill[]; visuals?: boolean; chatInstructions?: string } = {},
 ): string {
   const rules =
     mode === "sources"
@@ -39,10 +43,13 @@ export function chatSystemPrompt(
         )
         .join("\n")}`
     : "";
+  const notebookInstructions = chatInstructions?.trim()
+    ? `\n\nFollow these additional style and formatting preferences for this notebook's chat answers. Keep the source restrictions and citation rules above:\n<notebook-instructions>\n${chatInstructions.trim()}\n</notebook-instructions>`
+    : "";
 
   return `You are better-vault, a research assistant inside the user's notebook.
 ${rules}${empty}
-${STYLE}${visuals ? `\n${VISUALS_PROMPT}` : ""}${skillText}
+${STYLE}${visuals ? `\n${VISUALS_PROMPT}` : ""}${notebookInstructions}${skillText}
 
 ${formatPassages(passages)}`;
 }

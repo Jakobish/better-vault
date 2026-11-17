@@ -6,6 +6,8 @@ import type { ChatMessage } from "@/lib/chat/types";
 export interface Notebook {
   id: string;
   title: string;
+  /** Optional instructions for how chat answers should use the notebook's search results. */
+  chatInstructions?: string;
   /** Its icon's key in `lib/notebooks/icons.ts`; the default icon when missing. */
   icon?: string;
   /** A colour token name from `lib/notebooks/colors.ts`. */

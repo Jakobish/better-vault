@@ -74,9 +74,11 @@ function chatFor(notebookId: string, conversationId: string, messages: ChatMessa
 /** Opens the notebook's most recent conversation (or a new one), and runs it. */
 export function ChatProvider({
   notebookId,
+  chatInstructions,
   children,
 }: {
   notebookId: string;
+  chatInstructions?: string;
   children: ReactNode;
 }) {
   const [current, setCurrent] = useState<{ notebookId: string; chat: Chat<ChatMessage> } | null>(
@@ -124,6 +126,7 @@ export function ChatProvider({
   return (
     <ChatRunner
       notebookId={notebookId}
+      chatInstructions={chatInstructions}
       chat={current.chat}
       mode={mode}
       setMode={setMode}
@@ -145,6 +148,7 @@ function textOf(message: ChatMessage | undefined): string {
 
 function ChatRunner({
   notebookId,
+  chatInstructions,
   chat: instance,
   mode,
   setMode,
@@ -155,6 +159,7 @@ function ChatRunner({
   children,
 }: {
   notebookId: string;
+  chatInstructions?: string;
   skills: string[];
   setSkills: (ids: string[]) => void;
   chat: Chat<ChatMessage>;
@@ -187,13 +192,14 @@ function ChatRunner({
         credentials: credentialsFor(settings, model.provider),
         effort: effortFor(settings, model.provider),
         passages,
+        chatInstructions,
         skills: allSkills
           .filter((skill) => skills.includes(skill.id))
           .map(({ name, description, body }) => ({ name, description, body })),
         visuals: studio.visuals,
       };
     },
-    [notebookId, mode, skills],
+    [notebookId, mode, skills, chatInstructions],
   );
 
   const { sendMessage, regenerate, stop, messages, status, error } = chat;
