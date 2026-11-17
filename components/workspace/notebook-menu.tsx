@@ -4,6 +4,7 @@ import {
   GridViewIcon,
   NoteAddIcon,
   PencilEdit01Icon,
+  Settings01Icon,
 } from "@hugeicons/core-free-icons";
 import { useNavigate } from "react-router";
 import { useState } from "react";
@@ -16,6 +17,7 @@ import { NotebookDialog } from "@/components/home/notebook-dialog";
 import { useFolders } from "@/lib/db/folders";
 import { createNotebook, deleteNotebook, renameNotebook } from "@/lib/db/notebooks";
 import { notebookIcon } from "@/lib/notebooks/icons";
+import { NotebookInstructionsDialog } from "./notebook-instructions-dialog";
 import { useWorkspace } from "./workspace-context";
 import { routes } from "@/lib/routes";
 
@@ -28,6 +30,7 @@ export function NotebookMenu() {
   const [renaming, setRenaming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [editingInstructions, setEditingInstructions] = useState(false);
   const folders = useFolders() ?? [];
 
   return (
@@ -59,6 +62,10 @@ export function NotebookMenu() {
             <Icon icon={PencilEdit01Icon} />
             {t("renameNotebook")}
           </Menu.Item>
+          <Menu.Item onClick={() => setEditingInstructions(true)}>
+            <Icon icon={Settings01Icon} />
+            {t("chatInstructions.open")}
+          </Menu.Item>
           <Menu.Item variant="destructive" onClick={() => setDeleting(true)}>
             <Icon icon={Delete02Icon} />
             {t("deleteNotebook")}
@@ -72,6 +79,10 @@ export function NotebookMenu() {
         label={t("rename.label")}
         value={notebook.title}
         onSave={(title) => renameNotebook(notebook.id, title)}
+      />
+      <NotebookInstructionsDialog
+        open={editingInstructions}
+        onOpenChange={setEditingInstructions}
       />
       <NotebookDialog
         open={creating}

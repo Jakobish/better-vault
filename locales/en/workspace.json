@@ -11,6 +11,14 @@
   "allNotebooks": "All notebooks",
   "newNotebook": "New notebook",
   "renameNotebook": "Rename notebook",
+  "chatInstructions": {
+    "open": "Chat instructions",
+    "title": "Chat instructions",
+    "description": "Tell the model how to write answers in this notebook. These instructions apply to chat only.",
+    "label": "Instructions",
+    "hint": "For example, set the tone, structure, level of detail, or how to turn search results into a useful answer.",
+    "saveError": "Couldn't save the chat instructions. Try again."
+  },
   "deleteNotebook": "Delete notebook",
   "rename": {
     "title": "Rename notebook",

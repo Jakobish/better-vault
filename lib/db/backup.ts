@@ -28,12 +28,13 @@ export type BackupBlob = Omit<StoredBlob, "data"> & { data: string };
 export interface Backup {
   app: "better-vault";
   /**
-   * 6 adds notes and skills; 5 added calendar entries; 4 added vaults; 3 added folders and files; 2
-   * added conversations. Older backups still import: format 1 (one chat per
+   * 7 adds notebook chat instructions; 6 adds notes and skills; 5 added
+   * calendar entries; 4 added vaults; 3 added folders and files; 2 added
+   * conversations. Older backups still import: format 1 (one chat per
    * notebook), format 2 (no folders), format 3 (no vaults: everything is in
    * the default vault), format 4 (no calendar) and format 5 (no notes or skills).
    */
-  format: 6;
+  format: 7;
   exportedAt: number;
   calendar: CalendarEntry[];
   vaults: Vault[];
@@ -57,6 +58,7 @@ const backupSchema = z.object({
     z.literal(4),
     z.literal(5),
     z.literal(6),
+    z.literal(7),
   ]),
   notes: z
     .array(z.object({ id: z.string(), vaultId: z.string(), body: z.string() }).loose())
@@ -90,7 +92,7 @@ export async function exportBackup(): Promise<Backup> {
   const { blobs, ...content } = await store().exportAll();
   return {
     app: "better-vault",
-    format: 6,
+    format: 7,
     exportedAt: Date.now(),
     ...content,
     blobs: blobs.map((blob) => ({ ...blob, data: toBase64(blob.data) })),
@@ -134,7 +136,7 @@ type OldBackup = Omit<
   Backup,
   "format" | "conversations" | "folders" | "blobs" | "vaults" | "calendar" | "notes" | "skills"
 > & {
-  format: 1 | 2 | 3 | 4 | 5 | 6;
+  format: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   notes?: Note[];
   skills?: Skill[];
   calendar?: CalendarEntry[];
@@ -173,7 +175,7 @@ function upgradeBackup(backup: OldBackup): Backup {
   }
   return {
     ...backup,
-    format: 6,
+    format: 7,
     calendar: backup.calendar ?? [],
     notes: backup.notes ?? [],
     skills: backup.skills ?? [],
