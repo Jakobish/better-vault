@@ -1,0 +1,64 @@
+{
+  "title": "מקורות",
+  "description": "רק מקורות שנבחרו משמשים בצ׳אט ובסטודיו.",
+  "selected": "{{selected}} מתוך {{total}} נבחרו",
+  "selectAll": "בחירת כל המקורות",
+  "add": "הוספת מקור",
+  "empty": {
+    "title": "הוספת מקור ראשון",
+    "body": "אפשר להעלות קובץ PDF, Markdown או טקסט, להוסיף דף אינטרנט או להדביק טקסט."
+  },
+  "kinds": {
+    "text": "טקסט",
+    "markdown": "Markdown",
+    "pdf": "PDF",
+    "url": "דף אינטרנט"
+  },
+  "words_one": "{{formattedCount}} מילה",
+  "words_other": "{{formattedCount}} מילים",
+  "select": "שימוש ב־{{title}}",
+  "menu": "אפשרויות עבור {{title}}",
+  "read": "קריאה",
+  "openPage": "פתיחת הדף",
+  "rename": {
+    "title": "שינוי שם המקור",
+    "label": "שם"
+  },
+  "delete": {
+    "title": "למחוק את „{{title}}”?",
+    "body": "המקור יוסר מהמחברת הזו. צ׳אטים ותוצרים שנוצרו ממנו יישמרו.",
+    "confirm": "מחיקת מקור"
+  },
+  "addDialog": {
+    "title": "הוספת מקורות",
+    "description": "המקורות נשארים בדפדפן הזה. הטקסט שלהם נשלח למודל כששואלים שאלות או יוצרים תוכן.",
+    "tabs": {
+      "file": "העלאה",
+      "url": "דף אינטרנט",
+      "text": "הדבקת טקסט",
+      "cloud": "מאחסון"
+    },
+    "drop": "גרירת קבצים לכאן",
+    "choose": "בחירת קבצים",
+    "fileTypes": "קובצי PDF, Markdown או טקסט, עד 20 MB לקובץ.",
+    "urlLabel": "כתובת",
+    "urlPlaceholder": "https://example.com/article",
+    "urlHint": "הטקסט המרכזי בדף יישמר כמקור.",
+    "textTitle": "כותרת",
+    "textTitlePlaceholder": "טקסט שהודבק",
+    "textLabel": "טקסט",
+    "textPlaceholder": "הדביקו הערות, מאמר או תמליל",
+    "submit": "הוספה",
+    "adding": "מוסיף…"
+  },
+  "added_one": "נוסף {{count}} מקור",
+  "added_other": "נוספו {{count}} מקורות",
+  "errors": {
+    "empty": "לא ניתן היה לקרוא טקסט מתוך {{name}}.",
+    "type": "{{name}} אינו סוג קובץ נתמך.",
+    "tooLarge": "{{name}} גדול מ־20 MB.",
+    "read": "לא ניתן לקרוא את {{name}}: {{error}}",
+    "url": "יש להזין כתובת מלאה שמתחילה ב־http:// או ב־https://."
+  },
+  "picture": "תמונה מתוך {{title}}"
+}

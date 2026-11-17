@@ -1,0 +1,744 @@
+{
+  "title": "סטודיו",
+  "description": "הפכו את המקורות שבחרתם לחומרי לימוד.",
+  "created": "נוצר",
+  "empty": "עדיין לא נוצר דבר. בחרו כלי למעלה.",
+  "status": {
+    "generating": "יוצר…",
+    "failed": "נכשל",
+    "interrupted": "הפעולה הופסקה: הדף נסגר לפני שהסתיימה."
+  },
+  "outputMenu": "אפשרויות עבור {{title}}",
+  "rename": {
+    "title": "שינוי שם",
+    "label": "שם"
+  },
+  "delete": {
+    "title": "למחוק את „{{title}}”?",
+    "body": "הפריט יוסר מהמחברת הזו.",
+    "confirm": "מחיקה"
+  },
+  "tools": {
+    "report": {
+      "name": "דוחות",
+      "description": "מסמכי תדרוך, מדריכי לימוד, פוסטים או תבנית משלכם."
+    },
+    "flashcards": {
+      "name": "כרטיסיות",
+      "description": "כרטיסיות לתרגול, עם צד קדמי ואחורי."
+    },
+    "quiz": {
+      "name": "בוחן",
+      "description": "שאלות רב־ברירה עם הסברים."
+    },
+    "mind-map": {
+      "name": "מפת חשיבה",
+      "description": "מפת חשיבה או תרשים אחר של הרעיונות."
+    },
+    "data-table": {
+      "name": "טבלת נתונים",
+      "description": "עובדות מהמקורות שלך, בשורות ובעמודות."
+    },
+    "anatomy": {
+      "name": "מבנה",
+      "description": "איור אינטראקטיבי שאפשר לפרק כדי ללמוד איך משהו פועל."
+    },
+    "slide-deck": {
+      "name": "מצגת",
+      "description": "מצגת שנבנתה מהמקורות שלך."
+    },
+    "infographic": {
+      "name": "אינפוגרפיקה",
+      "description": "סיכום חזותי בעמוד אחד."
+    },
+    "whiteboard": {
+      "name": "לוח לבן",
+      "description": "לוח ריק לשרטוט, לתרשימים ולציור על תמונות."
+    },
+    "audio-overview": {
+      "name": "סקירה קולית",
+      "description": "שני מנחים או קריין אחד מציגים את המקורות שלך."
+    },
+    "notes": {
+      "name": "פתקים",
+      "description": "כתיבת פתקים מקושרים לצד המחברת הזו."
+    },
+    "canvas": {
+      "name": "קנבס",
+      "description": "ארגון פתקים, רעיונות וקישורים בכרטיסים המחוברים בחצים."
+    }
+  },
+  "view": {
+    "emptyTitle": "עדיין לא נוצר דבר",
+    "emptyBody": "השתמשו בכפתור ההוספה בפינה השמאלית העליונה ליצירת דוח, כרטיסיות, בוחן, מפת חשיבה ועוד.",
+    "openStudio": "פתיחת הסטודיו",
+    "all": "כל התוצרים",
+    "generatingBody": "הפעולה עשויה להימשך דקה. אפשר להמשיך לעבוד בינתיים.",
+    "failedTitle": "הפעולה נכשלה",
+    "retry": "ניסיון נוסף"
+  },
+  "dialog": {
+    "create": "יצירה",
+    "language": "שפת התוצר",
+    "languageAuto": "כמו המקורות",
+    "sources": "מקורות",
+    "allSources": "כל המקורות",
+    "focus": "מיקוד",
+    "optional": "לא חובה",
+    "focusPlaceholder": "לדוגמה: להתמקד במימון של מיזם חדש"
+  },
+  "errors": {
+    "noModel": "תחילה יש להגדיר מודל בהגדרות.",
+    "noSources": "יש לבחור מקור אחד לפחות.",
+    "failed": "לא ניתן ליצור: {{error}}",
+    "noImageModel": "הוסיפו מפתח של OpenAI או Google בהגדרות כדי ליצור תמונות.",
+    "noSpeechModel": "הוסיפו מפתח ElevenLabs בהגדרות ← ספקי AI כדי ליצור סקירות קוליות."
+  },
+  "choices": {
+    "fewer": "פחות",
+    "standard": "רגיל",
+    "more": "יותר",
+    "easy": "קל",
+    "medium": "בינוני",
+    "hard": "קשה"
+  },
+  "report": {
+    "format": "תבנית",
+    "templates": {
+      "briefing": {
+        "name": "מסמך תדרוך",
+        "description": "סקירה של המקורות שלך עם תובנות וציטוטים מרכזיים."
+      },
+      "study-guide": {
+        "name": "מדריך לימוד",
+        "description": "בוחן עם תשובות קצרות, שאלות למאמרון ומילון מונחים."
+      },
+      "blog-post": {
+        "name": "פוסט בבלוג",
+        "description": "התובנות החשובות ביותר במאמר קריא."
+      },
+      "custom": {
+        "name": "יצירת תבנית משלך",
+        "description": "תארו את המבנה, הסגנון והטון הרצויים."
+      }
+    },
+    "instructions": "תיאור הדוח",
+    "instructionsPlaceholder": "לדוגמה: סיכום של עמוד אחד למתחילים, עם טבלת מונחים מרכזיים",
+    "length": "אורך",
+    "lengths": {
+      "short": "קצר",
+      "standard": "רגיל",
+      "long": "ארוך"
+    },
+    "suggested": "מומלץ למקורות שלך",
+    "loadingSuggestions": "מחפש תבניות שמתאימות למקורות שלך…",
+    "viewer": {
+      "contents": "תוכן עניינים",
+      "progress_one": "{{percent}}% · {{count}} דקה",
+      "progress_other": "{{percent}}% · {{count}} דקות",
+      "progressLabel": "התקדמות הקריאה"
+    }
+  },
+  "flashcards": {
+    "amount": "מספר הכרטיסיות",
+    "difficulty": "רמת קושי",
+    "focusLabel": "באילו נושאים להתמקד?",
+    "focusPlaceholder": "לדוגמה: ההגדרות בפרק השני",
+    "viewer": {
+      "hint": "מקש הרווח הופך את הכרטיס; ← ו־→ עוברים בין הכרטיסיות.",
+      "flip": "הצגת התשובה",
+      "flipBack": "הצגת השאלה",
+      "previous": "הכרטיס הקודם",
+      "next": "הכרטיס הבא",
+      "knew": "ידעתי",
+      "missed": "עדיין לומד/ת",
+      "progress": "{{current}} / {{total}}",
+      "shuffle": "ערבוב",
+      "restart": "התחלה מחדש",
+      "finished": "כל הכבוד! ידעת {{known}} מתוך {{total}}.",
+      "practiceMissed_one": "תרגול הכרטיס שלא ידעת",
+      "practiceMissed_other": "תרגול {{count}} הכרטיסיות שלא ידעת"
+    }
+  },
+  "quiz": {
+    "amount": "מספר השאלות",
+    "difficulty": "רמת קושי",
+    "focusLabel": "באיזה נושא להתמקד?",
+    "focusPlaceholder": "לדוגמה: השלבים בהקמת מיזם",
+    "viewer": {
+      "progress": "שאלה {{current}} מתוך {{total}}",
+      "showHint": "הצגת רמז",
+      "next": "לשאלה הבאה",
+      "finish": "הצגת התוצאות",
+      "correct": "נכון",
+      "incorrect": "לא בדיוק",
+      "score": "ענית נכון על {{score}} מתוך {{total}}",
+      "retry": "ניסיון נוסף",
+      "answer": "תשובה: {{answer}}"
+    }
+  },
+  "data-table": {
+    "focusLabel": "תיאור הטבלה",
+    "focusPlaceholder": "לדוגמה: כל מושג, עם הגדרה, דוגמה והמקום שבו הוא מופיע",
+    "viewer": {
+      "rows_one": "{{count}} שורה",
+      "rows_other": "{{count}} שורות",
+      "copyMarkdown": "העתקה כ־Markdown"
+    }
+  },
+  "mind-map": {
+    "diagram": "סוג התרשים",
+    "detail": "רמת פירוט",
+    "details": {
+      "concise": "תמציתי",
+      "standard": "רגיל",
+      "detailed": "מפורט"
+    },
+    "focusLabel": "מה התרשים צריך להציג?",
+    "focusPlaceholder": "לדוגמה: כיצד רעיון עסקי הופך לחברה",
+    "diagrams": {
+      "mindmap": {
+        "name": "מפת חשיבה",
+        "description": "הנושא המרכזי והענפים שלו"
+      },
+      "flowchart": {
+        "name": "תרשים זרימה",
+        "description": "שלבים והחלטות בתהליך"
+      },
+      "timeline": {
+        "name": "ציר זמן",
+        "description": "אירועים לפי סדר"
+      },
+      "sequence": {
+        "name": "תרשים רצף",
+        "description": "מי עושה מה, שלב אחר שלב"
+      },
+      "state": {
+        "name": "שלבים",
+        "description": "מצבים והמעברים ביניהם"
+      },
+      "class": {
+        "name": "מודל מושגים",
+        "description": "מושגים, מאפיינים וקשרים"
+      },
+      "er": {
+        "name": "קשרים",
+        "description": "ישויות והקשרים ביניהן"
+      },
+      "quadrant": {
+        "name": "תרשים רבעים",
+        "description": "פריטים שממוקמים על שני צירים"
+      },
+      "journey": {
+        "name": "מסע",
+        "description": "שלבי חוויה והתחושות בכל שלב"
+      },
+      "ishikawa": {
+        "name": "סיבה ותוצאה",
+        "description": "תרשים עצם דג של הגורמים לבעיה"
+      },
+      "kanban": {
+        "name": "לוח קנבן",
+        "description": "משימות שמקובצות בעמודות"
+      },
+      "gantt": {
+        "name": "תרשים גאנט",
+        "description": "משימות לאורך זמן"
+      }
+    },
+    "viewer": {
+      "zoomIn": "הגדלה",
+      "zoomOut": "הקטנה",
+      "fit": "התאמה לתצוגה",
+      "copyCode": "העתקת קוד Mermaid",
+      "renderError": "לא ניתן לצייר את התרשים: {{error}}",
+      "views": {
+        "tree": "עץ",
+        "diagram": "תרשים"
+      },
+      "expandAll": "הרחבת הכול",
+      "collapseAll": "כיווץ הכול",
+      "expand": "הצגת הענפים של {{label}}",
+      "collapse": "הסתרת הענפים של {{label}}",
+      "ask": "שאלה בצ׳אט על {{label}}",
+      "hint": "לחצו על נושא כדי לשאול עליו בצ׳אט.",
+      "question": "דון/י במה שהמקורות אומרים על „{{topic}}” בהקשר של „{{parents}}”.",
+      "questionRoot": "דון/י במה שהמקורות אומרים על „{{topic}}”."
+    }
+  },
+  "anatomy": {
+    "detail": "רמת פירוט",
+    "details": {
+      "simple": "פשוט",
+      "standard": "רגיל",
+      "detailed": "מפורט"
+    },
+    "detailHints": {
+      "simple": "כ־20 עד 35 חלקים. האפשרות המהירה ביותר.",
+      "standard": "כ־35 עד 60 חלקים.",
+      "detailed": "כ־60 עד 90 חלקים. האפשרות האיטית ביותר."
+    },
+    "focusLabel": "מה האיור צריך להסביר?",
+    "focusPlaceholder": "לדוגמה: כיצד בודקים רעיון עסקי לפני השקתו",
+    "viewer": {
+      "figure": "איור 1",
+      "hint": "הצביעו על חלק · ← → שלבים · E פירוק",
+      "stageLabel": "איור אינטראקטיבי: {{title}}. השתמשו ב־← וב־→ כדי לעבור בין השלבים וב־E כדי לפרק.",
+      "previous": "השלב הקודם",
+      "next": "השלב הבא",
+      "play": "הפעלה",
+      "pause": "השהיה",
+      "explode": "פירוק",
+      "assemble": "הרכבה",
+      "pointHint": "הצביעו על חלק באיור או בחרו חלק כאן כדי לקרוא מה תפקידו.",
+      "howItWorks": "איך זה פועל",
+      "roles": {
+        "base": "בסיס",
+        "structure": "מבנה",
+        "mechanism": "מנגנון",
+        "control": "בקרה",
+        "subject": "נושא"
+      },
+      "stepShort": "{{current}} / {{total}}",
+      "partsTab": "חלקים"
+    }
+  },
+  "slide-deck": {
+    "format": "תבנית",
+    "formats": {
+      "detailed": {
+        "name": "מצגת מפורטת",
+        "description": "משפטים מלאים ועובדות מרכזיות, לקריאה ללא מרצה."
+      },
+      "presenter": {
+        "name": "שקופיות להרצאה",
+        "description": "נקודות קצרות בשקופיות והערות לדברי המרצה."
+      }
+    },
+    "length": "אורך",
+    "lengths": {
+      "short": "קצר",
+      "default": "ברירת מחדל"
+    },
+    "focusLabel": "תיאור המצגת הרצויה",
+    "focusPlaceholder": "לדוגמה: הרצאה של 10 דקות לסטודנטים בשנה א׳ על הסיכונים העיקריים",
+    "viewer": {
+      "slides": "שקופיות",
+      "slide": "שקופית",
+      "slideLabel": "שקופית {{current}} מתוך {{total}}: {{title}}",
+      "previous": "השקופית הקודמת",
+      "next": "השקופית הבאה",
+      "keys": "← → למעבר · F להצגה · N להערות",
+      "notes": "הערות",
+      "noNotes": "אין הערות לשקופית הזו.",
+      "present": "הצגה",
+      "presenting": "מציג",
+      "exit": "יציאה מהמצגת"
+    }
+  },
+  "infographic": {
+    "orientation": "כיוון",
+    "orientations": {
+      "landscape": "לרוחב",
+      "portrait": "לאורך",
+      "square": "ריבוע"
+    },
+    "detail": "רמת פירוט",
+    "details": {
+      "concise": "תמציתי",
+      "standard": "רגיל",
+      "detailed": "מפורט"
+    },
+    "style": "סגנון חזותי",
+    "styles": {
+      "auto": {
+        "name": "אוטומטי",
+        "description": "סגנון שמתאים לנושא"
+      },
+      "professional": {
+        "name": "מקצועי",
+        "description": "נקי, עסקי ומאופק"
+      },
+      "editorial": {
+        "name": "מגזיני",
+        "description": "טיפוגרפיה בולטת כמו במגזין"
+      },
+      "sketch-note": {
+        "name": "רישום",
+        "description": "ציור ידני עם איורים קטנים"
+      },
+      "playful": {
+        "name": "משחקי",
+        "description": "צבעוני וידידותי"
+      },
+      "scientific": {
+        "name": "מדעי",
+        "description": "מדויק כמו כרזה"
+      },
+      "minimal": {
+        "name": "מינימליסטי",
+        "description": "מעט צבעים והרבה מרווח"
+      }
+    },
+    "imageModel": "מודל תמונות",
+    "who": "{{chat}} יוצר את התיאור מהמקורות שלך; {{image}} מצייר את התמונה. יצירת תמונות משתמשת בנקודות של ספק המודל שלך.",
+    "focusLabel": "מה האינפוגרפיקה צריכה להציג?",
+    "focusPlaceholder": "לדוגמה: חמשת תחומי הסיכון והאיומים בכל אחד מהם",
+    "noKey": {
+      "title": "אינפוגרפיקה דורשת מודל תמונות",
+      "body": "היא נוצרת במודלים של OpenAI (GPT Image) או Google (Gemini image). הוסיפו אחד מהמפתחות בהגדרות; אפשר להמשיך להשתמש במודל הצ׳אט הנוכחי.",
+      "action": "פתיחת ההגדרות"
+    },
+    "viewer": {
+      "brief": "תיאור",
+      "details": "פרטים",
+      "spelling": "מודלי תמונות עלולים לאיית מילים באופן שגוי. התיאור למטה הוא הטקסט המהימן, עם המקורות שלו.",
+      "model": "מודל תמונות",
+      "size": "גודל",
+      "prompt": "הנחיה"
+    }
+  },
+  "viewer": {
+    "back": "כל התוצרים",
+    "download": "הורדה",
+    "copy": "העתקה",
+    "copied": "הועתק",
+    "actions": "פעולות לתוצר",
+    "meta": "{{sources}} · {{model}} · {{time}}",
+    "downloadAs": "הורדה בתור",
+    "formats": {
+      "docx": "מסמך Word ‏(.docx)",
+      "xlsx": "חוברת Excel ‏(.xlsx)",
+      "csv": "קובץ CSV ‏(.csv)",
+      "md": "Markdown ‏(.md)",
+      "svg": "תמונת SVG ‏(.svg)",
+      "png": "תמונת PNG ‏(.png)",
+      "mmd": "קוד Mermaid ‏(.mmd)",
+      "pptx": "PowerPoint ‏(.pptx)",
+      "pdf": "PDF ‏(להדפסה)",
+      "json": "קובץ לוח ‏(.json)",
+      "image": "התמונה המקורית",
+      "mp3": "שמע (MP3)",
+      "canvas": "JSON Canvas ‏(.canvas)"
+    },
+    "metaLocal": "נערך {{time}}",
+    "annotate": "הוספת הערות",
+    "saveTo": "שמירה באחסון",
+    "saveToService": "שמירה ב־{{name}}",
+    "savedTo": "נשמר ב־{{name}}"
+  },
+  "export": {
+    "question": "שאלה",
+    "answer": "תשובה",
+    "answerKey": "מפתח תשובות",
+    "sources": "מקורות"
+  },
+  "needsKey": "נדרש מפתח",
+  "whiteboard": {
+    "label": "לוח לבן",
+    "toolbar": "כלי ציור",
+    "toolLock": "השארת הכלי פעיל לאחר ציור",
+    "keyHint": "{{tool}} · {{keys}}",
+    "or": "או",
+    "tools": {
+      "hand": "יד",
+      "selection": "בחירה",
+      "rectangle": "מלבן",
+      "diamond": "מעוין",
+      "ellipse": "אליפסה",
+      "arrow": "חץ",
+      "line": "קו",
+      "freedraw": "עט",
+      "text": "טקסט",
+      "image": "תמונה",
+      "eraser": "מחק"
+    },
+    "colors": {
+      "ink": "דיו",
+      "grey": "אפור",
+      "red": "אדום",
+      "green": "ירוק",
+      "blue": "כחול",
+      "amber": "ענבר",
+      "violet": "סגול"
+    },
+    "properties": {
+      "title": "סגנון",
+      "stroke": "קו מתאר",
+      "background": "רקע",
+      "none": "ללא",
+      "fillStyle": "מילוי",
+      "fillStyles": {
+        "hachure": "קווים אלכסוניים",
+        "cross-hatch": "הצלבה",
+        "solid": "אחיד"
+      },
+      "strokeWidth": "עובי הקו",
+      "strokeWidths": {
+        "1": "דק",
+        "2": "עבה",
+        "4": "עבה במיוחד"
+      },
+      "strokeStyle": "סגנון הקו",
+      "strokeStyles": {
+        "solid": "רציף",
+        "dashed": "מקווקו",
+        "dotted": "מנוקד"
+      },
+      "sloppiness": "רמת החופש",
+      "roughness": {
+        "0": "אדריכל",
+        "1": "אמן",
+        "2": "קריקטוריסט"
+      },
+      "edges": "פינות",
+      "edgeKinds": {
+        "sharp": "חדות",
+        "round": "מעוגלות"
+      },
+      "arrowheads": "ראשי חץ",
+      "start": "התחלה",
+      "end": "סיום",
+      "arrowheadKinds": {
+        "none": "ללא",
+        "arrow": "חץ",
+        "triangle": "משולש",
+        "bar": "קו",
+        "dot": "נקודה"
+      },
+      "font": "גופן",
+      "fonts": {
+        "hand": "כתב יד",
+        "normal": "רגיל",
+        "code": "קוד"
+      },
+      "fontSize": "גודל",
+      "fontSizes": {
+        "16": "קטן",
+        "20": "בינוני",
+        "28": "גדול",
+        "36": "גדול במיוחד"
+      },
+      "align": "יישור",
+      "aligns": {
+        "start": "התחלה",
+        "center": "מרכז",
+        "end": "סוף"
+      },
+      "opacity": "אטימות",
+      "layers": "שכבות",
+      "layerMoves": {
+        "back": "העברה לתחתית",
+        "backward": "העברה אחורה",
+        "forward": "העברה קדימה",
+        "front": "העברה לראש"
+      },
+      "actions": "פעולות"
+    },
+    "actions": {
+      "duplicate": "שכפול",
+      "delete": "מחיקה",
+      "group": "קיבוץ",
+      "ungroup": "ביטול קיבוץ",
+      "lock": "נעילה",
+      "unlock": "ביטול נעילה",
+      "undo": "ביטול פעולה",
+      "redo": "ביצוע מחדש",
+      "zoomIn": "הגדלה",
+      "zoomOut": "הקטנה",
+      "resetZoom": "איפוס התצוגה",
+      "fit": "התאמה למסך",
+      "menu": "אפשרויות הלוח",
+      "shortcuts": "קיצורי מקלדת",
+      "unlockAll": "ביטול נעילה של הכול",
+      "clear": "ניקוי הלוח",
+      "selectAll": "בחירת הכול",
+      "copy": "העתקה",
+      "paste": "הדבקה",
+      "history": "היסטוריה",
+      "zoom": "תקריב",
+      "download": "הורדה",
+      "rename": "שינוי שם",
+      "deleteBoard": "מחיקת הלוח הלבן"
+    },
+    "background": "רקע",
+    "backgrounds": {
+      "dots": "נקודות",
+      "grid": "רשת",
+      "none": "חלק"
+    },
+    "empty": {
+      "title": "ציירו כל דבר",
+      "body": "בחרו כלי או הקישו על מקש: R למלבן, P לעט, T לטקסט. גררו או הדביקו תמונה כדי לצייר עליה."
+    },
+    "imageError": "אי אפשר להוסיף את הקובץ הזה ללוח. יש להשתמש בתמונת PNG,‏ JPEG או WebP.",
+    "textLabel": "טקסט",
+    "announce": {
+      "tool": "כלי {{tool}}",
+      "selected_one": "{{count}} פריט נבחר",
+      "selected_other": "{{count}} פריטים נבחרו",
+      "deleted_one": "{{count}} פריט נמחק",
+      "deleted_other": "{{count}} פריטים נמחקו"
+    },
+    "annotateTitle": "{{title}}, עם הערות",
+    "annotating": "פותח לוח לבן…",
+    "shortcuts": {
+      "title": "קיצורי מקלדת",
+      "description": "ב־Windows וב־Linux משתמשים ב־Ctrl במקום ב־⌘.",
+      "tools": "כלים",
+      "editing": "עריכה",
+      "view": "תצוגה",
+      "items": {
+        "toolLock": "השארת הכלי פעיל לאחר ציור",
+        "undo": "ביטול פעולה",
+        "redo": "ביצוע מחדש",
+        "selectAll": "בחירת הכול",
+        "duplicate": "שכפול",
+        "delete": "מחיקה",
+        "copy": "העתקה",
+        "paste": "הדבקה",
+        "group": "קיבוץ",
+        "ungroup": "ביטול קיבוץ",
+        "lock": "נעילה או ביטול נעילה",
+        "forward": "העברה קדימה",
+        "backward": "העברה אחורה",
+        "front": "העברה לראש",
+        "back": "העברה לתחתית",
+        "nudge": "הזזה (Shift: עשרה צעדים)",
+        "editText": "עריכת טקסט",
+        "copyDrag": "גרירת עותק",
+        "keepShape": "שמירת הפרופורציות ויישור זוויות",
+        "fromCenter": "שינוי גודל מהמרכז",
+        "deselect": "ביטול הבחירה",
+        "pan": "הזזה",
+        "zoom": "תקריב",
+        "zoomIn": "הגדלה",
+        "zoomOut": "הקטנה",
+        "resetZoom": "תצוגה בגודל 100%",
+        "fit": "התאמה של הכול למסך",
+        "fitSelection": "התאמת הבחירה למסך"
+      },
+      "keys": {
+        "drag": "גרירה",
+        "wheel": "גלגלת",
+        "space": "רווח",
+        "arrows": "חצים",
+        "pinch": "צביטה"
+      }
+    },
+    "groups": {
+      "navigate": "ניווט",
+      "shapes": "צורות",
+      "draw": "ציור וכתיבה"
+    }
+  },
+  "audio-overview": {
+    "format": "תבנית",
+    "formats": {
+      "deep-dive": {
+        "name": "צלילה לעומק",
+        "description": "שיחה ערנית שמפרקת את המקורות ומסבירה אותם.",
+        "soloName": "צלילה לעומק",
+        "soloDescription": "קריין אחד מסביר את המקורות לעומק."
+      },
+      "brief": {
+        "name": "תמצית",
+        "description": "הנקודות המרכזיות, בקצרה.",
+        "soloName": "תמצית",
+        "soloDescription": "הנקודות המרכזיות בקצרה, בקול אחד."
+      },
+      "debate": {
+        "name": "דיון",
+        "description": "שני צדדים של השאלות שעולות מהמקורות.",
+        "soloName": "שני הצדדים",
+        "soloDescription": "קריין אחד שוקל את הטיעונים של כל צד."
+      }
+    },
+    "length": "אורך",
+    "lengths": {
+      "short": "קצר",
+      "medium": "בינוני",
+      "long": "ארוך"
+    },
+    "minutes_one": "כדקה ({{count}})",
+    "minutes_other": "כ־{{count}} דקות",
+    "host": "מנחה {{number}}",
+    "speechModel": "מודל קול",
+    "loadingVoices": "טוען את הקולות שלך מ־ElevenLabs…",
+    "voicesFailed": "לא ניתן לטעון את הקולות שלך מ־ElevenLabs: {{error}}",
+    "preview": "השמעת דוגמה לקול הזה",
+    "stopPreview": "עצירת הדוגמה",
+    "noKey": {
+      "title": "סקירות קוליות דורשות ElevenLabs",
+      "body": "מודל הצ׳אט שלך כותב את השיחה וקולות ElevenLabs מקריאים אותה. הוסיפו את מפתח ElevenLabs בהגדרות.",
+      "action": "פתיחת ההגדרות"
+    },
+    "viewer": {
+      "missing": "ההקלטה של הסקירה הזו חסרה. צרו אותה מחדש כדי להאזין.",
+      "speaking": "{{name}} מדבר/ת",
+      "idle": "לא מתנגן",
+      "hosts": "בהשתתפות {{a}} ו־{{b}}",
+      "seek": "מיקום בהקלטה",
+      "back15": "חזרה 15 שניות",
+      "forward15": "קדימה 15 שניות",
+      "play": "הפעלה",
+      "pause": "השהיה",
+      "speed": "מהירות הפעלה {{speed}}×",
+      "transcript": "תמליל",
+      "turnOf": "תור {{turn}} מתוך {{total}}"
+    },
+    "speakers": "דוברים",
+    "speakerOptions": {
+      "two": "שני מנחים",
+      "one": "קריין אחד"
+    },
+    "narrator": "קריין",
+    "writer": "המודל שכתב את התסריט",
+    "writerHint": "המודל קורא את המקורות שלך וכותב את התוכן; לאחר מכן ElevenLabs מקריא אותו.",
+    "noWriter": "עדיין אין מודל צ׳אט. הוסיפו אחד דרך הגדרות ← ספקי AI."
+  },
+  "allHidden": "כל הכלים כבויים. הפעילו כלים דרך הגדרות ← סטודיו.",
+  "canvas": {
+    "empty": {
+      "title": "קנבס ריק",
+      "body": "הוסיפו כרטיסים מהסרגל למעלה או לחצו לחיצה כפולה בכל מקום כדי לכתוב."
+    },
+    "add": {
+      "text": "כרטיס טקסט",
+      "note": "כרטיס פתק",
+      "link": "כרטיס קישור",
+      "choose": "בחירת פתק",
+      "noNotes": "עדיין אין פתקים בכספת הזו.",
+      "url": "כתובת אינטרנט",
+      "addLink": "הוספת קישור"
+    },
+    "card": {
+      "edit": "עריכה",
+      "color": "צבע",
+      "noColor": "ללא צבע",
+      "delete": "מחיקה",
+      "openNote": "פתיחת פתק",
+      "missingNote": "הפתק לא נמצא",
+      "label": "תווית"
+    },
+    "edge": {
+      "label": "תווית",
+      "delete": "מחיקת חץ"
+    },
+    "fit": "התאמה למסך",
+    "zoomIn": "הגדלה",
+    "zoomOut": "הקטנה",
+    "hint": "גררו את הנקודה שעל כרטיס לכרטיס אחר כדי לחבר ביניהם.",
+    "colors": {
+      "1": "אדום",
+      "2": "כתום",
+      "3": "צהוב",
+      "4": "ירוק",
+      "5": "טורקיז",
+      "6": "סגול"
+    },
+    "menu": "אפשרויות הקנבס",
+    "rename": "שינוי שם הקנבס",
+    "delete": "מחיקת הקנבס"
+  }
+}

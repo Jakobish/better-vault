@@ -26,4 +26,13 @@ describe("i18n config", () => {
     expect(i18n.t("appName")).toBe("better-vault");
     expect(i18n.t("sourceCount", { count: 2 })).toBe("2 sources");
   });
+
+  it("supports Hebrew and right-to-left layout", () => {
+    expect(isLanguageCode("he")).toBe(true);
+    expect(getLanguage("he").dir).toBe("rtl");
+
+    const i18n = createI18n("he");
+    expect(i18n.t("appName")).toBe("better-vault");
+    expect(i18n.t("actions.save")).toBe("שמירה");
+  });
 });

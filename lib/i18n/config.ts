@@ -17,6 +17,7 @@ export interface LanguageInfo {
 
 export const languages = [
   { code: "en", name: "English", nativeName: "English", dir: "ltr" },
+  { code: "he", name: "Hebrew", nativeName: "עברית", dir: "rtl" },
 ] as const satisfies readonly LanguageInfo[];
 
 export type LanguageCode = (typeof languages)[number]["code"];
