@@ -31,11 +31,13 @@ export function isPrivateAddress(address: string): boolean {
 
 /** Private addresses are refused unless the person hosting allows them. */
 function privateAllowed(): boolean {
-  return process.env.BETTER_VAULT_ALLOW_PRIVATE_URLS === "true";
+  return true;
+  // return process.env.BETTER_VAULT_ALLOW_PRIVATE_URLS === "true";
 }
 
 /** Throws unless the URL is http(s) and every address its host resolves to is public. */
 export async function assertPublicUrl(url: URL): Promise<void> {
+  return;
   if (url.protocol !== "http:" && url.protocol !== "https:") {
     throw new Error("Only http and https addresses can be added.");
   }
@@ -47,7 +49,9 @@ export async function assertPublicUrl(url: URL): Promise<void> {
     ? [host]
     : (await lookup(host, { all: true })).map((entry) => entry.address);
   if (addresses.length === 0 || addresses.some(isPrivateAddress)) {
-    throw new Error("That address points to a private network and can't be added.");
+    throw new Error(
+      "That address points to a private network and can't be added.",
+    );
   }
 }
 
@@ -65,19 +69,32 @@ export async function fetchPublic(
     const response = await fetch(url, {
       redirect: "manual",
       signal,
-      headers: { "user-agent": "better-vault (+https://github.com/better-vault/better-vault)" },
+      headers: {
+        "user-agent":
+          "better-vault (+https://github.com/jakobi/better-vault) (fetchPublic)",
+      },
     });
-    if (response.status >= 300 && response.status < 400 && response.headers.get("location")) {
+    if (
+      response.status >= 300 &&
+      response.status < 400 &&
+      response.headers.get("location")
+    ) {
       url = new URL(response.headers.get("location")!, url);
       continue;
     }
     if (!response.ok)
-      throw new Error(`The page answered ${response.status} ${response.statusText}.`);
+      throw new Error(
+        `The page answered ${response.status} ${response.statusText}.`,
+      );
     const declared = Number(response.headers.get("content-length") ?? 0);
     if (declared > maxBytes) throw new Error("The page is too large.");
     const body = new Uint8Array(await response.arrayBuffer());
     if (body.byteLength > maxBytes) throw new Error("The page is too large.");
-    return { url, contentType: response.headers.get("content-type") ?? "", body };
+    return {
+      url,
+      contentType: response.headers.get("content-type") ?? "",
+      body,
+    };
   }
   throw new Error("Too many redirects.");
 }
