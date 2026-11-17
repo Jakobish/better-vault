@@ -53,7 +53,13 @@ async function baseLanguageModel(
 
   switch (ref.provider) {
     case "openai":
-      return createOpenAI({ apiKey: credentials.apiKey })(ref.modelId);
+      return createOpenAI({
+        apiKey: credentials.apiKey,
+        baseURL: parseBaseURL(
+          credentials.baseURL,
+          info.defaultBaseURL ?? "https://api.openai.com/v1",
+        ).toString(),
+      })(ref.modelId);
     case "anthropic":
       return createAnthropic({ apiKey: credentials.apiKey })(ref.modelId);
     case "bettervault":
@@ -88,7 +94,13 @@ export function createImageModel(ref: ModelRef, credentials: ProviderCredentials
   if (!credentials.apiKey) throw new Error(`Add an API key for ${info.name} in Settings.`);
   switch (ref.provider) {
     case "openai":
-      return createOpenAI({ apiKey: credentials.apiKey }).image(ref.modelId);
+      return createOpenAI({
+        apiKey: credentials.apiKey,
+        baseURL: parseBaseURL(
+          credentials.baseURL,
+          info.defaultBaseURL ?? "https://api.openai.com/v1",
+        ).toString(),
+      }).image(ref.modelId);
     case "google":
       return createGoogleGenerativeAI({ apiKey: credentials.apiKey }).image(ref.modelId);
     default:
@@ -114,7 +126,15 @@ export function createWebSearchTools(
 ): ToolSet | undefined {
   switch (ref.provider) {
     case "openai":
-      return { web_search: createOpenAI({ apiKey: credentials.apiKey }).tools.webSearch({}) };
+      return {
+        web_search: createOpenAI({
+          apiKey: credentials.apiKey,
+          baseURL: parseBaseURL(
+            credentials.baseURL,
+            providers.openai.defaultBaseURL ?? "https://api.openai.com/v1",
+          ).toString(),
+        }).tools.webSearch({}),
+      };
     case "anthropic":
     case "bettervault":
       return {

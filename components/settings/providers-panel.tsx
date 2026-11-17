@@ -172,9 +172,11 @@ function ProviderForm({
             ? { chatgpt: true }
             : id === "opencode"
               ? { apiKey: apiKey.trim(), baseURL: baseURL || info.defaultBaseURL }
-              : info.needsKey
-                ? { apiKey: apiKey.trim() }
-                : { baseURL: baseURL.trim() },
+              : id === "openai"
+                ? { apiKey: apiKey.trim(), baseURL: baseURL.trim() || info.defaultBaseURL }
+                : info.needsKey
+                  ? { apiKey: apiKey.trim() }
+                  : { baseURL: baseURL.trim() },
         }),
       });
       const body = (await response.json()) as {
@@ -312,6 +314,23 @@ function ProviderForm({
               />
             </Field>
           )}
+
+          {id === "openai" ? (
+            <Field label={t("providers.baseURL")} htmlFor={urlId}>
+              <Input
+                id={urlId}
+                type="url"
+                spellCheck={false}
+                placeholder={info.defaultBaseURL}
+                value={baseURL}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setBaseURL(value);
+                  save({ baseURL: value.trim(), models: [] });
+                }}
+              />
+            </Field>
+          ) : null}
 
           {info.kind === "audio" ? null : (
             <>

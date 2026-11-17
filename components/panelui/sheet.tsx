@@ -68,6 +68,7 @@
  * scrolls freely, the way a presentation's slide panel does, and pressing
  * one chooses it.
  */
+import { useDirection } from '@base-ui/react/direction-provider';
 import { Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import {
@@ -258,6 +259,9 @@ const sheetVariants = tv({
           '[transform:translateX(calc(var(--drawer-swipe-movement-x,0px)+var(--sheet-push)))_scale(var(--sheet-scale))]',
           'data-starting-style:[transform:translateX(calc(-100%-var(--sheet-gap)-2rem))]',
           'data-ending-style:[transform:translateX(calc(-100%-var(--sheet-gap)-2rem))]',
+          // Side sheets follow the logical edge, so their enter/exit direction flips in RTL.
+          'rtl:data-starting-style:[transform:translateX(calc(100%+var(--sheet-gap)+2rem))]',
+          'rtl:data-ending-style:[transform:translateX(calc(100%+var(--sheet-gap)+2rem))]',
         ],
       },
       right: {
@@ -267,6 +271,8 @@ const sheetVariants = tv({
           '[transform:translateX(calc(var(--drawer-swipe-movement-x,0px)-var(--sheet-push)))_scale(var(--sheet-scale))]',
           'data-starting-style:[transform:translateX(calc(100%+var(--sheet-gap)+2rem))]',
           'data-ending-style:[transform:translateX(calc(100%+var(--sheet-gap)+2rem))]',
+          'rtl:data-starting-style:[transform:translateX(calc(-100%-var(--sheet-gap)-2rem))]',
+          'rtl:data-ending-style:[transform:translateX(calc(-100%-var(--sheet-gap)-2rem))]',
         ],
       },
     },
@@ -414,6 +420,7 @@ function SheetFrame({
   dismissible = true,
   handle: drawerHandle,
 }: SheetFrameProps) {
+  const rtl = useDirection() === 'rtl';
   // A sheet inside another sheet's content finds that sheet's context.
   const parent = useContext(SheetContext);
   const nested = parent !== null && !parent.inline;
@@ -472,7 +479,13 @@ function SheetFrame({
       <Drawer.Root
         open={isOpen}
         handle={drawerHandle}
-        swipeDirection={SWIPE[side]}
+        swipeDirection={
+          rtl && side === 'left'
+            ? 'right'
+            : rtl && side === 'right'
+              ? 'left'
+              : SWIPE[side]
+        }
         disablePointerDismissal={!dismissible}
         onOpenChange={(next, details) => {
           // The primitive has a switch for a press outside and none for

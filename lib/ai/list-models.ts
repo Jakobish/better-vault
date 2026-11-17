@@ -68,7 +68,14 @@ async function listModelIds(
 
   switch (provider) {
     case "openai": {
-      const body = await getJson<{ data: { id: string }[] }>("https://api.openai.com/v1/models", {
+      const base = parseBaseURL(
+        credentials.baseURL,
+        info.defaultBaseURL ?? "https://api.openai.com/v1",
+      );
+      base.pathname = `${base.pathname.replace(/\/+$/, "")}/`;
+      base.search = "";
+      base.hash = "";
+      const body = await getJson<{ data: { id: string }[] }>(new URL("models", base).toString(), {
         authorization: `Bearer ${credentials.apiKey}`,
       });
       return body.data
