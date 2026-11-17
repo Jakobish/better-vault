@@ -135,6 +135,7 @@
     "viewer": {
       "contents": "תוכן עניינים",
       "progress_one": "{{percent}}% · {{count}} דקה",
+      "progress_two": "{{percent}}% · {{count}} דקות",
       "progress_other": "{{percent}}% · {{count}} דקות",
       "progressLabel": "התקדמות הקריאה"
     }
@@ -157,6 +158,7 @@
       "restart": "התחלה מחדש",
       "finished": "כל הכבוד! ידעת {{known}} מתוך {{total}}.",
       "practiceMissed_one": "תרגול הכרטיס שלא ידעת",
+      "practiceMissed_two": "תרגול {{count}} הכרטיסיות שלא ידעת",
       "practiceMissed_other": "תרגול {{count}} הכרטיסיות שלא ידעת"
     }
   },
@@ -182,6 +184,7 @@
     "focusPlaceholder": "לדוגמה: כל מושג, עם הגדרה, דוגמה והמקום שבו הוא מופיע",
     "viewer": {
       "rows_one": "{{count}} שורה",
+      "rows_two": "{{count}} שורות",
       "rows_other": "{{count}} שורות",
       "copyMarkdown": "העתקה כ־Markdown"
     }
@@ -576,8 +579,10 @@
     "announce": {
       "tool": "כלי {{tool}}",
       "selected_one": "{{count}} פריט נבחר",
+      "selected_two": "{{count}} פריטים נבחרו",
       "selected_other": "{{count}} פריטים נבחרו",
       "deleted_one": "{{count}} פריט נמחק",
+      "deleted_two": "{{count}} פריטים נמחקו",
       "deleted_other": "{{count}} פריטים נמחקו"
     },
     "annotateTitle": "{{title}}, עם הערות",
@@ -661,6 +666,7 @@
       "long": "ארוך"
     },
     "minutes_one": "כדקה ({{count}})",
+    "minutes_two": "כ־{{count}} דקות",
     "minutes_other": "כ־{{count}} דקות",
     "host": "מנחה {{number}}",
     "speechModel": "מודל קול",

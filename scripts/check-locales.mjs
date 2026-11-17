@@ -25,6 +25,7 @@ const sourceFiles = readdirSync(join(root, source)).filter((f) => f.endsWith(".j
 const languages = readdirSync(root).filter(
   (entry) => entry !== source && statSync(join(root, entry)).isDirectory(),
 );
+const pluralCategories = { he: ["two"] };
 
 let problems = 0;
 for (const language of languages) {
@@ -46,8 +47,25 @@ for (const language of languages) {
       }
     }
     for (const key of actual) {
-      if (!expected.has(key)) {
+      const match = key.match(/^(.*)_(one|two|other)$/);
+      const isLanguagePluralCategory =
+        match &&
+        pluralCategories[language]?.includes(match[2]) &&
+        expected.has(`${match[1]}_one`) &&
+        expected.has(`${match[1]}_other`);
+      if (!expected.has(key) && !isLanguagePluralCategory) {
         console.error(`✗ ${language}/${file}: extra "${key}" (not in ${source})`);
+        problems++;
+      }
+    }
+    for (const key of expected) {
+      if (!key.endsWith("_one")) continue;
+      const base = key.slice(0, -"_one".length);
+      if (
+        expected.has(`${base}_other`) &&
+        pluralCategories[language]?.some((category) => !actual.has(`${base}_${category}`))
+      ) {
+        console.error(`✗ ${language}/${file}: missing language plural form for "${base}"`);
         problems++;
       }
     }

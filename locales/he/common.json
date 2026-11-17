@@ -31,6 +31,7 @@
     "soon": "בקרוב"
   },
   "sourceCount_one": "{{count}} מקור",
+  "sourceCount_two": "{{count}} מקורות",
   "sourceCount_other": "{{count}} מקורות",
   "citation": {
     "label": "מקור {{numbers}}: {{title}}",

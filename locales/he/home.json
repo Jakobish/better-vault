@@ -32,6 +32,7 @@
     "noFolder": "ללא תיקייה (ברמה העליונה)",
     "create": "יצירת מחברת",
     "files_one": "להוסיף {{count}} קובץ",
+    "files_two": "להוסיף {{count}} קבצים",
     "files_other": "להוסיף {{count}} קבצים",
     "removeFile": "לא להוסיף את {{name}}"
   },
@@ -46,6 +47,7 @@
     "edit": "שם וצבע",
     "menu": "אפשרויות התיקייה",
     "items_one": "{{count}} פריט",
+    "items_two": "{{count}} פריטים",
     "items_other": "{{count}} פריטים",
     "deleteTitle": "למחוק את „{{name}}”?",
     "deleteBody": "התיקייה תוסר. המחברות והתיקיות שבה יעברו רמה אחת למעלה; שום דבר אחר לא יימחק.",
@@ -125,6 +127,7 @@
     "all": "כל המחברות",
     "emptyFolder": "עדיין אין כאן פריטים",
     "itemCount_one": "{{count}} פריט",
+    "itemCount_two": "{{count}} פריטים",
     "itemCount_other": "{{count}} פריטים"
   },
   "toolbar": {

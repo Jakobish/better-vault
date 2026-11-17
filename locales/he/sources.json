@@ -15,6 +15,7 @@
     "url": "דף אינטרנט"
   },
   "words_one": "{{formattedCount}} מילה",
+  "words_two": "{{formattedCount}} מילים",
   "words_other": "{{formattedCount}} מילים",
   "select": "שימוש ב־{{title}}",
   "menu": "אפשרויות עבור {{title}}",
@@ -52,6 +53,7 @@
     "adding": "מוסיף…"
   },
   "added_one": "נוסף {{count}} מקור",
+  "added_two": "נוספו {{count}} מקורות",
   "added_other": "נוספו {{count}} מקורות",
   "errors": {
     "empty": "לא ניתן היה לקרוא טקסט מתוך {{name}}.",

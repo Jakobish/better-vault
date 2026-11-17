@@ -34,5 +34,6 @@ describe("i18n config", () => {
     const i18n = createI18n("he");
     expect(i18n.t("appName")).toBe("better-vault");
     expect(i18n.t("actions.save")).toBe("שמירה");
+    expect(i18n.t("sourceCount", { count: 2 })).toBe("2 מקורות");
   });
 });

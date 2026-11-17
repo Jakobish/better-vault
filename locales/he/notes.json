@@ -21,6 +21,7 @@
   "noTags": "עדיין אין תגיות. כתבו #תגית בפתק.",
   "updated": "נערך {{time}}",
   "words_one": "{{count}} מילה",
+  "words_two": "{{count}} מילים",
   "words_other": "{{count}} מילים",
   "fromNotebook": "מתוך {{title}}",
   "modes": {
@@ -58,6 +59,7 @@
     "export": "ייצוא כ־.md",
     "import": "ייבוא קובצי .md",
     "imported_one": "יובא {{count}} פתק",
+    "imported_two": "יובאו {{count}} פתקים",
     "imported_other": "יובאו {{count}} פתקים",
     "graph": "תצוגת גרף",
     "shortcuts": "קיצורי מקלדת",
