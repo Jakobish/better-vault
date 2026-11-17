@@ -1,3 +1,5 @@
+import { assertPublicUrl } from "@/lib/sources/network";
+
 /**
  * Server-side switches, set with environment variables when hosting
  * better-vault for others.
@@ -39,4 +41,21 @@ export function parseBaseURL(value: string | undefined, fallback: string): URL {
     throw new Error("The server address must start with http:// or https://.");
   }
   return url;
+}
+
+/** Fetches a configured provider endpoint without allowing redirects around URL checks. */
+export async function fetchProviderEndpoint(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response> {
+  const url = new URL(
+    typeof input === "string" || input instanceof URL ? input.toString() : input.url,
+  );
+  if (!isDesktopRuntime()) await assertPublicUrl(url);
+
+  const response = await fetch(input, { ...init, redirect: "manual" });
+  if (response.status >= 300 && response.status < 400) {
+    throw new Error("The configured API endpoint must not redirect.");
+  }
+  return response;
 }

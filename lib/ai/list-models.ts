@@ -1,20 +1,30 @@
 import { listChatGPTModels } from "@/lib/chatgpt/model";
 import { providers, type ProviderCredentials, type ProviderId } from "./catalog";
 import { listOpenCodeModels } from "./opencode";
-import { chatGPTAllowed, localProvidersAllowed, parseBaseURL } from "./server-config";
+import {
+  chatGPTAllowed,
+  fetchProviderEndpoint,
+  localProvidersAllowed,
+  parseBaseURL,
+} from "./server-config";
 
 const TIMEOUT = 10_000;
 
-async function getJson<T>(url: string, headers: Record<string, string> = {}): Promise<T> {
+async function getJson<T>(
+  url: string,
+  headers: Record<string, string> = {},
+  fetcher: typeof fetch = fetch,
+): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(url, {
+    response = await fetcher(url, {
       headers,
       signal: AbortSignal.timeout(TIMEOUT),
       cache: "no-store",
     });
   } catch (error) {
     if (error instanceof Error && error.name === "TimeoutError") throw error;
+    if (fetcher !== fetch) throw error;
     throw new Error(`Could not reach ${new URL(url).origin}. Is the server running?`);
   }
   if (!response.ok) {
@@ -75,9 +85,11 @@ async function listModelIds(
       base.pathname = `${base.pathname.replace(/\/+$/, "")}/`;
       base.search = "";
       base.hash = "";
-      const body = await getJson<{ data: { id: string }[] }>(new URL("models", base).toString(), {
-        authorization: `Bearer ${credentials.apiKey}`,
-      });
+      const body = await getJson<{ data: { id: string }[] }>(
+        new URL("models", base).toString(),
+        { authorization: `Bearer ${credentials.apiKey}` },
+        fetchProviderEndpoint,
+      );
       return body.data
         .map((model) => model.id)
         .filter(

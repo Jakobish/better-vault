@@ -15,7 +15,23 @@ import {
 import { chatGPTLanguageModel } from "@/lib/chatgpt/model";
 import { providers, type Effort, type ModelRef, type ProviderCredentials } from "./catalog";
 import { createOpenCodeModel } from "./opencode";
-import { chatGPTAllowed, localProvidersAllowed, parseBaseURL } from "./server-config";
+import {
+  chatGPTAllowed,
+  fetchProviderEndpoint,
+  localProvidersAllowed,
+  parseBaseURL,
+} from "./server-config";
+
+function openAIProvider(credentials: ProviderCredentials) {
+  return createOpenAI({
+    apiKey: credentials.apiKey,
+    baseURL: parseBaseURL(
+      credentials.baseURL,
+      providers.openai.defaultBaseURL ?? "https://api.openai.com/v1",
+    ).toString(),
+    fetch: fetchProviderEndpoint,
+  });
+}
 
 /**
  * Builds the model for one request from the credentials sent with it.
@@ -53,13 +69,7 @@ async function baseLanguageModel(
 
   switch (ref.provider) {
     case "openai":
-      return createOpenAI({
-        apiKey: credentials.apiKey,
-        baseURL: parseBaseURL(
-          credentials.baseURL,
-          info.defaultBaseURL ?? "https://api.openai.com/v1",
-        ).toString(),
-      })(ref.modelId);
+      return openAIProvider(credentials)(ref.modelId);
     case "anthropic":
       return createAnthropic({ apiKey: credentials.apiKey })(ref.modelId);
     case "bettervault":
@@ -94,13 +104,7 @@ export function createImageModel(ref: ModelRef, credentials: ProviderCredentials
   if (!credentials.apiKey) throw new Error(`Add an API key for ${info.name} in Settings.`);
   switch (ref.provider) {
     case "openai":
-      return createOpenAI({
-        apiKey: credentials.apiKey,
-        baseURL: parseBaseURL(
-          credentials.baseURL,
-          info.defaultBaseURL ?? "https://api.openai.com/v1",
-        ).toString(),
-      }).image(ref.modelId);
+      return openAIProvider(credentials).image(ref.modelId);
     case "google":
       return createGoogleGenerativeAI({ apiKey: credentials.apiKey }).image(ref.modelId);
     default:
@@ -126,15 +130,7 @@ export function createWebSearchTools(
 ): ToolSet | undefined {
   switch (ref.provider) {
     case "openai":
-      return {
-        web_search: createOpenAI({
-          apiKey: credentials.apiKey,
-          baseURL: parseBaseURL(
-            credentials.baseURL,
-            providers.openai.defaultBaseURL ?? "https://api.openai.com/v1",
-          ).toString(),
-        }).tools.webSearch({}),
-      };
+      return { web_search: openAIProvider(credentials).tools.webSearch({}) };
     case "anthropic":
     case "bettervault":
       return {
