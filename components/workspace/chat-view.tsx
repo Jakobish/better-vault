@@ -10,7 +10,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { createNote } from "@/lib/db/notes";
 import { useSources } from "@/lib/db/sources";
 import { DEFAULT_VAULT } from "@/lib/db/vaults";
-import { stripCitations } from "@/lib/grounding/passages";
 import { useWorkspace } from "./workspace-context";
 
 const SUGGESTIONS = ["summary", "questions", "terms", "plan"] as const;
@@ -88,7 +87,7 @@ export function ChatView() {
               onRetry={retry}
               onCreateNote={(text) =>
                 runAction(async () => {
-                  const body = stripCitations(text);
+                  const body = text;
                   const title = body.match(/^\s{0,3}#{1,6}\s+(.+)$/m)?.[1]?.trim();
                   const note = await createNote({
                     vaultId: notebook.vaultId ?? DEFAULT_VAULT,
