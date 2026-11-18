@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Chat: save an assistant answer as a Markdown note in the current notebook's vault.
 - Opt-in ChatGPT plan sign-in in the web app when you run its server on localhost.
 - Add multiple OpenAI-compatible providers with their own API addresses, keys and models in Settings → AI providers.
 - Restore the defaults in Settings → AI providers after confirming the removal of saved keys, custom settings and model preferences.
