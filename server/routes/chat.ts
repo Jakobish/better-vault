@@ -64,6 +64,24 @@ function withoutOldCitations(messages: ChatMessage[]): ChatMessage[] {
   );
 }
 
+/** Responses APIs with `store: false` can't resolve reasoning item ids from earlier turns. */
+function withoutUnstoredReasoningIds(messages: ChatMessage[]): ChatMessage[] {
+  return messages.map((message) => ({
+    ...message,
+    parts: message.parts.map((part) => {
+      if (part.type !== "reasoning") return part;
+      const metadata = part.providerMetadata?.openai;
+      if (!metadata || !("itemId" in metadata)) return part;
+      const openai = { ...metadata };
+      delete openai.itemId;
+      return {
+        ...part,
+        providerMetadata: { ...part.providerMetadata, openai },
+      };
+    }),
+  }));
+}
+
 function textLength(message: ChatMessage): number {
   return message.parts.reduce((sum, part) => sum + (part.type === "text" ? part.text.length : 0), 0);
 }
@@ -110,10 +128,14 @@ export async function POST(request: Request) {
   };
   const system = chatSystemPrompt(mode, passages, options);
   const instructions = chatSystemPrompt(mode, [], options).length;
+  const conversation = withoutOldCitations(messages);
+  // A custom OpenAI-compatible endpoint may also run with storage disabled.
+  const modelMessages =
+    model.provider === "openai" ? withoutUnstoredReasoningIds(conversation) : conversation;
   const result = streamText({
     model: languageModel,
     system,
-    messages: await convertToModelMessages(withoutOldCitations(messages), {
+    messages: await convertToModelMessages(modelMessages, {
       ignoreIncompleteToolCalls: true,
     }),
     tools,
