@@ -41,7 +41,7 @@ Your key is stored on your device and sent only with the requests that need it. 
 
 ## Use your ChatGPT plan
 
-If you pay for ChatGPT, the [desktop app](/docs/desktop) can use your plan instead of an OpenAI API key. Chat and every Studio tool then count against the usage included in your plan. The web app doesn't support it: the sign-in is kept by the app's server, and a web server could share it with anyone who reaches it.
+The [desktop app](/docs/desktop) can use your ChatGPT plan for chat and the text requests made by Studio tools. You can also enable sign-in when you [run the web app locally](/docs/self-hosting#chatgpt-plan-on-localhost).
 
 <Steps>
 <Step>
@@ -61,8 +61,6 @@ Sign in to ChatGPT and allow better-vault to use your plan. The page then tells 
 </Steps>
 
 You can review and limit what better-vault uses at [ChatGPT → Settings → Usage](https://chatgpt.com/settings/usage), and sign out from the same place in better-vault's settings. Pictures for infographics still need an API key, because a ChatGPT plan can't generate images in other apps.
-
-The sign-in works only when better-vault's server runs on the same computer as your browser: in the desktop app, or when you run the web app yourself. The tokens stay with that server, in a private file in its data folder, and never reach the browser.
 
 ## Use a local model
 

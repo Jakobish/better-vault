@@ -1,5 +1,6 @@
 import { Hono } from "hono";
-import { setDesktopRuntime } from "@/lib/ai/server-config";
+import { setDesktopRuntime, withLocalChatGPT } from "@/lib/ai/server-config";
+import { isLoopbackHost } from "./loopback";
 import { POST as calendarFetch } from "./routes/calendar-fetch";
 import { POST as chat } from "./routes/chat";
 import { POST as chatgpt } from "./routes/chatgpt";
@@ -16,11 +17,28 @@ import { POST as voices } from "./routes/voices";
  * The app's API: stateless routes that take the user's keys in each request
  * and talk to the providers. The web server (`server/node.ts`), the Vite dev
  * server (`vite.config.ts`) and the desktop app's main process all serve it;
- * the desktop app passes `desktop: true`, which allows Sign in with ChatGPT.
+ * the web servers may opt into ChatGPT sign-in when listening on loopback.
  */
-export function createApi({ desktop = false }: { desktop?: boolean } = {}) {
+export function createApi({
+  desktop = false,
+  localChatGPT = false,
+}: { desktop?: boolean; localChatGPT?: boolean } = {}) {
   setDesktopRuntime(desktop);
   const api = new Hono().basePath("/api");
+  if (localChatGPT) {
+    api.use("*", (c, next) => {
+      const url = new URL(c.req.url);
+      // The server stores one session. Only pages from this local app can use it.
+      if (
+        isLoopbackHost(url.hostname) &&
+        c.req.header("host") === url.host &&
+        c.req.header("origin") === url.origin
+      ) {
+        return withLocalChatGPT(next);
+      }
+      return next();
+    });
+  }
   api.post("/calendar/fetch", (c) => calendarFetch(c.req.raw));
   api.post("/chat", (c) => chat(c.req.raw));
   api.post("/chatgpt", (c) => chatgpt(c.req.raw));

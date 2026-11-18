@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { assertPublicUrl } from "@/lib/sources/network";
 
 /**
@@ -25,14 +26,18 @@ export function isDesktopRuntime(): boolean {
   return desktopRuntime;
 }
 
-/**
- * Sign in with ChatGPT works in the desktop app only. Its tokens are kept by
- * the server, so on a web server, even one on your own computer, they would
- * belong to whoever reaches it; OpenAI also offers it only to apps that run
- * locally. BETTER_VAULT_ALLOW_CHATGPT=false turns it off in the desktop app too.
- */
+const localChatGPT = new AsyncLocalStorage<boolean>();
+
+/** Grants access to the stored session for the lifetime of a verified local web request. */
+export function withLocalChatGPT<T>(run: () => T): T {
+  return localChatGPT.run(true, run);
+}
+
 export function chatGPTAllowed(): boolean {
-  return desktopRuntime && process.env.BETTER_VAULT_ALLOW_CHATGPT !== "false";
+  return (
+    process.env.BETTER_VAULT_ALLOW_CHATGPT !== "false" &&
+    (desktopRuntime || localChatGPT.getStore() === true)
+  );
 }
 
 /** Checks a local provider address: http(s) only. */

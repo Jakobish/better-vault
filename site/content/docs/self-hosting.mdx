@@ -17,6 +17,18 @@ npm start
 
 The app is then served at the root of its address, for example `http://localhost:3000`. Set `PORT` and `HOSTNAME` to change where it listens. This website is a separate project and is not part of the app.
 
+## ChatGPT plan on localhost
+
+To use your own ChatGPT plan in the browser, start the built app with sign-in enabled and bind it to localhost.
+
+```bash
+HOSTNAME=localhost BETTER_VAULT_ALLOW_CHATGPT=true npm start
+```
+
+For `npm run dev`, set `BETTER_VAULT_ALLOW_CHATGPT=true` in the project's `.env` file and restart the dev server. Open `http://localhost:3000` directly and follow the [ChatGPT sign-in steps](/docs/providers#use-your-chatgpt-plan).
+
+The local server holds one ChatGPT session on disk. Run one instance per data directory and keep the session for your own computer.
+
 ## Other hosts
 
 The build is two folders: `dist/client` holds the pages and `dist/server/node.js` serves them with the API under `/api`. Any host that runs a long-lived Node.js process can run it. The API routes only forward requests to the provider each user picks.
@@ -25,11 +37,12 @@ The build is two folders: `dist/client` holds the pages and `dist/server/node.js
 
 All of them are optional.
 
-| Variable                             | Default | Effect                                                                                                                                                  |
-| ------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BETTER_VAULT_ALLOW_LOCAL_PROVIDERS` | `true`  | Set to `false` to turn off Ollama and LM Studio. Their address comes from the user, so on a public server they would make the server fetch any address. |
-| `BETTER_VAULT_ALLOW_PRIVATE_URLS`    | `false` | Set to `true` to let web-page sources point at private or local network addresses. Only for trusted, private installs.                                  |
+| Variable                             | Default                   | Effect                                                                                                                                                  |
+| ------------------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BETTER_VAULT_ALLOW_LOCAL_PROVIDERS` | `true`                    | Set to `false` to turn off Ollama and LM Studio. Their address comes from the user, so on a public server they would make the server fetch any address. |
+| `BETTER_VAULT_ALLOW_PRIVATE_URLS`    | `false`                   | Set to `true` to let web-page sources point at private or local network addresses. Only for trusted, private installs.                                  |
+| `BETTER_VAULT_ALLOW_CHATGPT`         | Off on web, on in desktop | Set to `true` when running the web app on localhost. Set to `false` to disable sign-in in the desktop app.                                              |
 
 ## Public deployments
 
-For an install that strangers can reach, set `BETTER_VAULT_ALLOW_LOCAL_PROVIDERS=false` and leave private URLs off. Sign in with ChatGPT is never offered by the web app; it works only in the desktop app. Each user still brings their own key, which stays in their browser.
+For an install that strangers can reach, set `BETTER_VAULT_ALLOW_LOCAL_PROVIDERS=false` and leave private URLs and ChatGPT sign-in off. Each user brings their own key, which stays in their browser.

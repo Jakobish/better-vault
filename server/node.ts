@@ -6,6 +6,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { inlineScriptHashes, securityHeaders } from "@/lib/security/csp";
 import { createApi } from "./app";
+import { isLoopbackHost } from "./loopback";
 
 /**
  * `npm start`: the built app on http://localhost:3000 (or $PORT). It serves
@@ -15,6 +16,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const client = path.join(here, "..", "client");
 const port = Number(process.env.PORT) || 3000;
 const hostname = process.env.HOSTNAME || "localhost";
+const localChatGPT = process.env.BETTER_VAULT_ALLOW_CHATGPT === "true" && isLoopbackHost(hostname);
 
 const index = await readFile(path.join(client, "index.html"), "utf8");
 const headers = securityHeaders(inlineScriptHashes(index));
@@ -24,7 +26,7 @@ app.use("*", async (c, next) => {
   await next();
   for (const [name, value] of Object.entries(headers)) c.res.headers.set(name, value);
 });
-app.route("/", createApi());
+app.route("/", createApi({ localChatGPT }));
 app.use("/*", serveStatic({ root: path.relative(process.cwd(), client) }));
 // Every other path is a page of the single-page app.
 app.get("*", (c) => c.html(index));

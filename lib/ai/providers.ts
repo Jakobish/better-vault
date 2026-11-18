@@ -98,7 +98,7 @@ async function baseLanguageModel(
   const info = providers[ref.provider];
   if (info.kind !== "chat") throw new Error(`${info.name} makes audio only; choose another model.`);
   if (ref.provider === "openai" && credentials.chatgpt) {
-    if (!chatGPTAllowed()) throw new Error("Sign in with ChatGPT works in the desktop app only.");
+    if (!chatGPTAllowed()) throw new Error("Sign in with ChatGPT is unavailable on this server.");
     return chatGPTLanguageModel(ref.modelId);
   }
   if (info.needsKey && !credentials.apiKey)

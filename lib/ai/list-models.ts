@@ -95,7 +95,7 @@ async function listModelIds(
   }
   const info = providers[provider];
   if (provider === "openai" && credentials.chatgpt) {
-    if (!chatGPTAllowed()) throw new Error("Sign in with ChatGPT works in the desktop app only.");
+    if (!chatGPTAllowed()) throw new Error("Sign in with ChatGPT is unavailable on this server.");
     return listChatGPTModels();
   }
   if (info.needsKey && !credentials.apiKey) throw new Error("An API key is needed.");
