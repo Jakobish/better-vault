@@ -25,7 +25,9 @@ import {
   defaultSettings,
   getSettings,
   isProviderReady,
+  resetProviderSettings,
   updateProvider,
+  updateSettings,
 } from "./settings";
 import { createNote, renameNote, saveNoteBody } from "./notes";
 import { createSkill, deleteSkill, saveSkill } from "./skills";
@@ -534,6 +536,53 @@ describe.each(backends)("%s store", (name, create) => {
       const settings = await getSettings();
       expect(availableModels(settings)).toEqual([]);
       expect(activeModel(settings)).toBeNull();
+    });
+
+    it("restores AI provider defaults without clearing connected accounts or other settings", async () => {
+      const defaults = defaultSettings();
+      const chatgpt = { email: "reader@example.com", name: "Reader" };
+      const subscription = {
+        ...defaults.providers.bettervault,
+        enabled: true,
+        apiKey: "test-session",
+        models: ["better-vault"],
+      };
+      await updateSettings((settings) => {
+        settings.providers.openai = {
+          ...settings.providers.openai,
+          enabled: true,
+          apiKey: "test-key",
+          baseURL: "https://proxy.example/v1",
+          models: ["custom"],
+          chatgpt,
+          effort: "high",
+          contextTokens: { custom: 8000 },
+        };
+        settings.providers.ollama = {
+          ...settings.providers.ollama,
+          enabled: true,
+          baseURL: "http://localhost:12345",
+          contextChars: 4000,
+        };
+        settings.providers.elevenlabs.enabled = true;
+        settings.providers.elevenlabs.apiKey = "test-speech-key";
+        settings.providers.bettervault = subscription;
+        settings.model = { provider: "openai", modelId: "custom" };
+        settings.favoriteModels = ["openai:custom"];
+      });
+      await store().putSetting("studio", { hidden: [], visuals: false });
+
+      await resetProviderSettings();
+
+      expect(await getSettings()).toEqual({
+        ...defaults,
+        providers: {
+          ...defaults.providers,
+          openai: { ...defaults.providers.openai, chatgpt },
+          bettervault: subscription,
+        },
+      });
+      expect(await store().getSetting("studio")).toEqual({ hidden: [], visuals: false });
     });
 
     it("needs a key for cloud providers and an address for local ones", () => {

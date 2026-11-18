@@ -3,10 +3,11 @@ import {
   Cancel01Icon,
   Globe02Icon,
   Loading03Icon,
+  RefreshIcon,
   ViewIcon,
   ViewOffIcon,
 } from "@hugeicons/core-free-icons";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Field } from "@/components/common/field";
@@ -56,10 +57,11 @@ function statusOf(settings: AppSettings, id: ProviderId): Status {
 interface ProvidersPanelProps {
   /** Continue with ChatGPT: the settings sheet closes and opens its dialog. */
   onChatGPTSignIn: () => void;
+  onReset: () => void;
 }
 
 /** The list of providers; each opens its own sheet. */
-export function ProvidersPanel({ onChatGPTSignIn }: ProvidersPanelProps) {
+export function ProvidersPanel({ onChatGPTSignIn, onReset }: ProvidersPanelProps) {
   const { t } = useTranslation("settings");
   const { t: tCommon } = useTranslation();
   const settings = useSettings();
@@ -77,6 +79,12 @@ export function ProvidersPanel({ onChatGPTSignIn }: ProvidersPanelProps) {
           {t("providers.speech")}
         </h3>
         <ProviderList ids={speechProviderIds} settings={settings} />
+        <div className="mt-5 border-t pt-4 pb-4">
+          <Button variant="outline" size="sm" onClick={onReset} disabled={!settings}>
+            <Icon icon={RefreshIcon} size={16} />
+            {t("providers.reset.label")}
+          </Button>
+        </div>
       </Sheet.Body>
       <Sheet.Next name="provider" closeLabel={tCommon("actions.close")}>
         {(id: ProviderId) => <ProviderDetail id={id} onChatGPTSignIn={onChatGPTSignIn} />}
@@ -155,16 +163,22 @@ function ProviderForm({
   const [newModel, setNewModel] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const modelRequest = useRef<AbortController | null>(null);
+
+  useEffect(() => () => modelRequest.current?.abort(), []);
 
   const save = (patch: Partial<ProviderSettings>) => void updateProvider(id, patch);
   const openCodePlan = baseURL === openCodeAddress.go ? "go" : "zen";
 
   async function loadModels() {
+    const request = new AbortController();
+    modelRequest.current = request;
     setLoading(true);
     setLoadError(null);
     try {
       const response = await fetch("/api/models", {
         method: "POST",
+        signal: request.signal,
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           provider: id,
@@ -184,12 +198,15 @@ function ProviderForm({
         contextTokens?: Record<string, number>;
         error?: string;
       };
+      if (request.signal.aborted) return;
       if (!response.ok || !body.models) throw new Error(body.error ?? response.statusText);
       await updateProvider(id, { models: body.models, contextTokens: body.contextTokens ?? {} });
     } catch (error) {
-      setLoadError(error instanceof Error ? error.message : String(error));
+      if (!request.signal.aborted)
+        setLoadError(error instanceof Error ? error.message : String(error));
     } finally {
-      setLoading(false);
+      modelRequest.current = null;
+      if (!request.signal.aborted) setLoading(false);
     }
   }
 

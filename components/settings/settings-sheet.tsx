@@ -21,7 +21,7 @@ import { Sheet } from "@/components/panelui/sheet";
 import { useTheme } from "@/components/providers/theme-provider";
 import { providerIds } from "@/lib/ai/catalog";
 import { deleteAllData } from "@/lib/db/backup";
-import { isProviderReady, useSettings } from "@/lib/db/settings";
+import { isProviderReady, resetProviderSettings, useSettings } from "@/lib/db/settings";
 import { getLanguage } from "@/lib/i18n/config";
 import { useUpdates } from "@/lib/updates/use-updates";
 import { appVersion } from "@/lib/version";
@@ -104,6 +104,7 @@ export function SettingsSheet({ open: openProp, onOpenChange, trigger, page }: S
     onOpenChange?.(next);
   };
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
+  const [confirmProviderReset, setConfirmProviderReset] = useState(false);
   const [chatGPTOpen, setChatGPTOpen] = useState(false);
   const [subscribeOpen, setSubscribeOpen] = useState(false);
   const { t: tCommon } = useTranslation();
@@ -254,6 +255,10 @@ export function SettingsSheet({ open: openProp, onOpenChange, trigger, page }: S
           </Sheet.Next>
           <Sheet.Next name="providers" closeLabel={tCommon("actions.close")}>
             <ProvidersPanel
+              onReset={() => {
+                setOpen(false);
+                setConfirmProviderReset(true);
+              }}
               onChatGPTSignIn={() => {
                 setOpen(false);
                 setChatGPTOpen(true);
@@ -298,6 +303,22 @@ export function SettingsSheet({ open: openProp, onOpenChange, trigger, page }: S
       </Sheet>
       <ChatGPTDialog open={chatGPTOpen} onOpenChange={setChatGPTOpen} />
       <CalendarSubscribeDialog open={subscribeOpen} onOpenChange={setSubscribeOpen} />
+      <ConfirmDialog
+        open={confirmProviderReset}
+        onOpenChange={setConfirmProviderReset}
+        title={t("providers.reset.title")}
+        body={t("providers.reset.warning")}
+        confirmLabel={t("providers.reset.confirm")}
+        onConfirm={async () => {
+          try {
+            await resetProviderSettings();
+            toast.success(t("providers.reset.success"));
+          } catch (error) {
+            toast.error(t("providers.reset.failed"));
+            throw error;
+          }
+        }}
+      />
       <ConfirmDialog
         open={confirmDeleteAll}
         onOpenChange={setConfirmDeleteAll}

@@ -95,6 +95,18 @@ export async function updateProvider(id: ProviderId, patch: Partial<ProviderSett
   });
 }
 
+/** Restores provider defaults and model preferences, keeping connected accounts. */
+export async function resetProviderSettings(): Promise<void> {
+  const defaults = defaultSettings();
+  await updateSettings((settings) => {
+    defaults.providers.bettervault = settings.providers.bettervault;
+    defaults.providers.openai.chatgpt = settings.providers.openai.chatgpt;
+    settings.providers = defaults.providers;
+    settings.model = defaults.model;
+    settings.favoriteModels = defaults.favoriteModels;
+  });
+}
+
 /** The saved settings, live. `undefined` while loading. */
 export function useSettings(): AppSettings | undefined {
   return useStoreQuery(getSettings, [], ["settings"]);

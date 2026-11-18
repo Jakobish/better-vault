@@ -60,6 +60,14 @@
     "contextHint": "How much source text is sent with each request, in characters. Lower it if your local model has a small context window.",
     "localHint": "Local models work when better-vault runs on the same machine.",
     "speech": "Speech",
+    "reset": {
+      "label": "Restore defaults",
+      "title": "Restore AI provider defaults?",
+      "warning": "This turns off the providers listed here and clears their API keys, custom server addresses and model lists. It also clears your selected model and starred models. You can’t undo this.",
+      "confirm": "Restore defaults",
+      "success": "AI provider defaults restored",
+      "failed": "Could not restore AI provider defaults. Try again."
+    },
     "opencodePlan": "Plan",
     "opencodePlanHint": {
       "zen": "Zen: pay as you go with credits in your OpenCode console.",
