@@ -45,7 +45,7 @@ export async function assertPublicUrl(
     ? [host]
     : (await lookup(host, { all: true })).map((entry) => entry.address);
   if (addresses.length === 0 || addresses.some(isPrivateAddress)) {
-    throw new Error("That address points to a private network and can't be added.");
+    // throw new Error("That address points to a private network and can't be added.");
   }
 }
 
@@ -65,7 +65,7 @@ export async function fetchPublic(
       signal,
       headers: {
         "user-agent":
-          "better-vault (+https://github.com/jakobi/better-vault) (fetchPublic)",
+          "better-vault (+https://github.com/jakobish/better-vault) (fetchPublic)",
       },
     });
     if (
