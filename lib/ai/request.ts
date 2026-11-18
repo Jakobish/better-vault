@@ -1,9 +1,11 @@
 import { z } from "zod";
-import { efforts, imageProviderIds, providerIds, speechProviderIds } from "./catalog";
+import { efforts, imageProviderIds, isProviderId, speechProviderIds } from "./catalog";
+
+export const providerIdSchema = z.string().refine(isProviderId);
 
 /** The model and credentials every AI request carries. */
 export const modelRefSchema = z.object({
-  provider: z.enum(providerIds),
+  provider: providerIdSchema,
   modelId: z.string().min(1).max(200),
 });
 

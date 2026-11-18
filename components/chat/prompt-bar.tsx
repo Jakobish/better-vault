@@ -17,11 +17,13 @@ import { Menu } from "@/components/panelui/menu";
 import { ModelPicker } from "@/components/panelui/model-picker";
 import { Prompt, type PromptState } from "@/components/panelui/prompt";
 import { useWorkspace } from "@/components/workspace/workspace-context";
-import { chatProviderIds, modelKey, parseModelKey, providers } from "@/lib/ai/catalog";
+import { isCustomProviderId, modelKey, parseModelKey, providerInfo } from "@/lib/ai/catalog";
 import type { ChatMode } from "@/lib/chat/types";
 import {
   activeModel,
   availableModels,
+  providerName,
+  savedProvider,
   updateSettings,
   usesChatGPT,
   useSettings,
@@ -56,15 +58,15 @@ export function PromptBar() {
 
   const models = settings ? availableModels(settings) : [];
   const model = settings ? activeModel(settings) : null;
-  const webAvailable = model ? providers[model.provider].webSearch : false;
+  const webAvailable = model ? providerInfo(model.provider).webSearch : false;
   const mode: ChatMode = chat.mode === "web" && webAvailable ? "web" : "sources";
   const selected = sources?.filter((source) => source.selected).length ?? 0;
   const needsSource = mode === "sources" && selected === 0;
   const status: PromptState = chat.status === "ready" ? "idle" : chat.status;
 
   const modelItems = models.map((ref) => {
-    const info = providers[ref.provider];
-    const listed = settings?.providers[ref.provider].contextTokens[ref.modelId];
+    const info = providerInfo(ref.provider);
+    const listed = settings && savedProvider(settings, ref.provider)?.contextTokens[ref.modelId];
     return {
       value: modelKey(ref),
       label: ref.modelId,
@@ -80,13 +82,11 @@ export function PromptBar() {
       ],
     };
   });
-  const pickerProviders = chatProviderIds
-    .filter((id) => models.some((ref) => ref.provider === id))
-    .map((id) => ({
-      value: id,
-      label: providers[id].name,
-      icon: <ProviderIcon provider={id} size={20} />,
-    }));
+  const pickerProviders = [...new Set(models.map((ref) => ref.provider))].map((id) => ({
+    value: id,
+    label: providerName(settings, id),
+    icon: <ProviderIcon provider={id} size={20} />,
+  }));
 
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-background via-background/80 to-transparent px-3 pt-8 pb-3 sm:px-4 sm:pb-4">
@@ -202,7 +202,9 @@ export function PromptBar() {
                       disabled: !webAvailable,
                       title:
                         !webAvailable && model
-                          ? t("mode.webUnavailable", { name: providers[model.provider].name })
+                          ? t("mode.webUnavailable", {
+                              name: providerName(settings, model.provider),
+                            })
                           : t("mode.webHint"),
                     },
                   ]}
@@ -227,6 +229,11 @@ export function PromptBar() {
                       appearance="ghost"
                       className="max-w-48"
                       placeholder={t("chooseModel")}
+                      title={
+                        isCustomProviderId(model.provider)
+                          ? `${providerName(settings, model.provider)} · ${model.modelId}`
+                          : undefined
+                      }
                     />
                     <ModelPicker.Content
                       side="top"

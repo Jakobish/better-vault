@@ -1,4 +1,4 @@
-import type { ProviderId } from "./catalog";
+import type { BuiltInProviderId } from "./catalog";
 
 /**
  * The providers' logos, from theSVG (https://thesvg.org, CC0-1.0), as their
@@ -12,7 +12,7 @@ export interface ProviderMark {
   paths: readonly string[];
 }
 
-export const providerMarks: Record<ProviderId, ProviderMark> = {
+export const providerMarks: Record<BuiltInProviderId, ProviderMark> = {
   // Drawn with the app's own logo by ProviderIcon; this outline is a fallback.
   bettervault: {
     viewBox: "0 0 24 24",

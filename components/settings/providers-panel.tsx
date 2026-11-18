@@ -1,6 +1,8 @@
 import {
+  Add01Icon,
   AudioWave01Icon,
   Cancel01Icon,
+  Delete02Icon,
   Globe02Icon,
   Loading03Icon,
   RefreshIcon,
@@ -24,24 +26,31 @@ import { Segmented } from "@/components/common/segmented";
 import { Select } from "@/components/panelui/select";
 import {
   chatProviderIds,
-  providers,
+  isCustomProviderId,
+  providerInfo,
   speechProviderIds,
+  type CustomProviderId,
   type Effort,
   type ProviderId,
 } from "@/lib/ai/catalog";
 import { desktopBridge } from "@/lib/desktop/bridge";
 import { accountLabel, chatGPTStatus, chatGPTUsageUrl, signOutChatGPT } from "@/lib/chatgpt/client";
 import {
+  addCustomProvider,
+  customProviderIds,
   isProviderReady,
+  providerName,
+  savedProvider,
   updateProvider,
   useSettings,
   type AppSettings,
   type ProviderSettings,
 } from "@/lib/db/settings";
 import { cn } from "@/lib/utils";
+import { CustomProviderConnection } from "./custom-provider-connection";
 import { SettingsRow } from "./settings-row";
 
-type Status = "ready" | "needsKey" | "off";
+type Status = "ready" | "needsKey" | "needsModel" | "off";
 
 /** OpenCode's plans and the addresses that choose them (lib/ai/opencode.ts). */
 const openCodeAddress = {
@@ -51,17 +60,25 @@ const openCodeAddress = {
 
 function statusOf(settings: AppSettings, id: ProviderId): Status {
   if (isProviderReady(settings, id)) return "ready";
-  return settings.providers[id].enabled && providers[id].needsKey ? "needsKey" : "off";
+  if (!savedProvider(settings, id)?.enabled) return "off";
+  if (isCustomProviderId(id)) return "needsModel";
+  return providerInfo(id).needsKey ? "needsKey" : "off";
+}
+
+export interface CustomProviderRemoval {
+  id: CustomProviderId;
+  name: string;
 }
 
 interface ProvidersPanelProps {
   /** Continue with ChatGPT: the settings sheet closes and opens its dialog. */
   onChatGPTSignIn: () => void;
   onReset: () => void;
+  onRemoveCustom: (provider: CustomProviderRemoval) => void;
 }
 
 /** The list of providers; each opens its own sheet. */
-export function ProvidersPanel({ onChatGPTSignIn, onReset }: ProvidersPanelProps) {
+export function ProvidersPanel({ onChatGPTSignIn, onReset, onRemoveCustom }: ProvidersPanelProps) {
   const { t } = useTranslation("settings");
   const { t: tCommon } = useTranslation();
   const settings = useSettings();
@@ -75,6 +92,21 @@ export function ProvidersPanel({ onChatGPTSignIn, onReset }: ProvidersPanelProps
           ids={chatProviderIds.filter((id) => id !== "bettervault")}
           settings={settings}
         />
+        <div className="mt-5">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <h3 className="px-0.5 text-xs font-medium text-muted-foreground">
+              {t("providers.custom.title")}
+            </h3>
+            <Sheet.Trigger
+              to="add-provider"
+              render={<Button variant="ghost" size="sm" disabled={!settings} />}
+            >
+              <Icon icon={Add01Icon} size={16} />
+              {t("providers.custom.add")}
+            </Sheet.Trigger>
+          </div>
+          {settings ? <ProviderList ids={customProviderIds(settings)} settings={settings} /> : null}
+        </div>
         <h3 className="mt-5 mb-1 px-0.5 text-xs font-medium text-muted-foreground">
           {t("providers.speech")}
         </h3>
@@ -87,7 +119,16 @@ export function ProvidersPanel({ onChatGPTSignIn, onReset }: ProvidersPanelProps
         </div>
       </Sheet.Body>
       <Sheet.Next name="provider" closeLabel={tCommon("actions.close")}>
-        {(id: ProviderId) => <ProviderDetail id={id} onChatGPTSignIn={onChatGPTSignIn} />}
+        {(id: ProviderId) => (
+          <ProviderDetail
+            id={id}
+            onChatGPTSignIn={onChatGPTSignIn}
+            onRemoveCustom={onRemoveCustom}
+          />
+        )}
+      </Sheet.Next>
+      <Sheet.Next name="add-provider" closeLabel={tCommon("actions.close")}>
+        <AddProvider onChatGPTSignIn={onChatGPTSignIn} onRemoveCustom={onRemoveCustom} />
       </Sheet.Next>
     </>
   );
@@ -111,7 +152,7 @@ function ProviderList({
             to="provider"
             payload={id}
             icon={<ProviderIcon provider={id} />}
-            label={providers[id].name}
+            label={providerName(settings, id)}
             hint={t(`providers.${status}`)}
             end={
               <span
@@ -120,7 +161,7 @@ function ProviderList({
                   "size-2 rounded-full",
                   status === "ready"
                     ? "bg-success"
-                    : status === "needsKey"
+                    : status === "needsKey" || status === "needsModel"
                       ? "bg-warning"
                       : "bg-muted-foreground/30",
                 )}
@@ -133,24 +174,56 @@ function ProviderList({
   );
 }
 
-function ProviderDetail({ id, onChatGPTSignIn }: { id: ProviderId; onChatGPTSignIn: () => void }) {
+function AddProvider(props: Pick<ProvidersPanelProps, "onChatGPTSignIn" | "onRemoveCustom">) {
+  const { t } = useTranslation("settings");
+  const [created, setCreated] = useState<CustomProviderId | null>(null);
+  if (created) return <ProviderDetail id={created} {...props} />;
+
+  return (
+    <>
+      <Sheet.Header
+        title={t("providers.custom.add")}
+        description={t("providers.custom.description")}
+      />
+      <Sheet.Body>
+        <div className="pb-4">
+          <CustomProviderConnection
+            onSave={async (connection) => setCreated(await addCustomProvider(connection))}
+          />
+        </div>
+      </Sheet.Body>
+    </>
+  );
+}
+
+function ProviderDetail({
+  id,
+  ...actions
+}: { id: ProviderId } & Pick<ProvidersPanelProps, "onChatGPTSignIn" | "onRemoveCustom">) {
   const settings = useSettings();
   if (!settings) return null;
-  return <ProviderForm id={id} saved={settings.providers[id]} onChatGPTSignIn={onChatGPTSignIn} />;
+  const saved = savedProvider(settings, id);
+  if (!saved) return null;
+  const custom = isCustomProviderId(id) ? settings.customProviders[id] : undefined;
+  return <ProviderForm key={id} id={id} saved={saved} customName={custom?.name} {...actions} />;
 }
 
 function ProviderForm({
   id,
   saved,
+  customName,
   onChatGPTSignIn,
+  onRemoveCustom,
 }: {
   id: ProviderId;
   saved: ProviderSettings;
-  onChatGPTSignIn: () => void;
-}) {
+  customName?: string;
+} & Pick<ProvidersPanelProps, "onChatGPTSignIn" | "onRemoveCustom">) {
   const { t } = useTranslation("settings");
   const { t: tCommon } = useTranslation();
-  const info = providers[id];
+  const info = providerInfo(id);
+  const custom = isCustomProviderId(id);
+  const name = customName ?? info.name;
   const keyId = useId();
   const urlId = useId();
   const contextId = useId();
@@ -182,15 +255,17 @@ function ProviderForm({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           provider: id,
-          credentials: saved.chatgpt
-            ? { chatgpt: true }
-            : id === "opencode"
-              ? { apiKey: apiKey.trim(), baseURL: baseURL || info.defaultBaseURL }
-              : id === "openai"
-                ? { apiKey: apiKey.trim(), baseURL: baseURL.trim() || info.defaultBaseURL }
-                : info.needsKey
-                  ? { apiKey: apiKey.trim() }
-                  : { baseURL: baseURL.trim() },
+          credentials: custom
+            ? { baseURL: saved.baseURL, apiKey: saved.apiKey || undefined }
+            : saved.chatgpt
+              ? { chatgpt: true }
+              : id === "opencode"
+                ? { apiKey: apiKey.trim(), baseURL: baseURL || info.defaultBaseURL }
+                : id === "openai"
+                  ? { apiKey: apiKey.trim(), baseURL: baseURL.trim() || info.defaultBaseURL }
+                  : info.needsKey
+                    ? { apiKey: apiKey.trim() }
+                    : { baseURL: baseURL.trim() },
         }),
       });
       const body = (await response.json()) as {
@@ -205,8 +280,10 @@ function ProviderForm({
       if (!request.signal.aborted)
         setLoadError(error instanceof Error ? error.message : String(error));
     } finally {
-      modelRequest.current = null;
-      if (!request.signal.aborted) setLoading(false);
+      if (modelRequest.current === request) {
+        modelRequest.current = null;
+        if (!request.signal.aborted) setLoading(false);
+      }
     }
   }
 
@@ -219,14 +296,21 @@ function ProviderForm({
   }
 
   const models = saved.models.length > 0 ? saved.models : info.suggestedModels;
-  const canLoad =
-    saved.chatgpt !== null || (info.needsKey ? apiKey.trim() !== "" : baseURL.trim() !== "");
+  const canLoad = custom
+    ? !!saved.baseURL
+    : saved.chatgpt !== null || (info.needsKey ? apiKey.trim() !== "" : baseURL.trim() !== "");
 
   return (
     <>
       <Sheet.Header
-        title={info.name}
-        description={info.local ? t("providers.localHint") : undefined}
+        title={name}
+        description={
+          custom
+            ? t("providers.custom.compatible")
+            : info.local
+              ? t("providers.localHint")
+              : undefined
+        }
       />
       <Sheet.Body>
         <div className="flex flex-col gap-5 pb-4">
@@ -235,7 +319,7 @@ function ProviderForm({
             <OpenCodeCheck />
           ) : (
             <Label className="justify-between gap-4 rounded-2xl bg-muted/60 px-4 py-3">
-              <Label.Text>{t("providers.enable", { name: info.name })}</Label.Text>
+              <Label.Text>{t("providers.enable", { name })}</Label.Text>
               <Switch checked={saved.enabled} onCheckedChange={(enabled) => save({ enabled })} />
             </Label>
           )}
@@ -272,7 +356,24 @@ function ProviderForm({
             </p>
           ) : null}
 
-          {info.needsKey ? (
+          {custom ? (
+            <CustomProviderConnection
+              saved={{ name, baseURL: saved.baseURL, apiKey: saved.apiKey }}
+              onSave={async (connection) => {
+                const endpointChanged = connection.baseURL !== saved.baseURL;
+                if (endpointChanged || connection.apiKey !== saved.apiKey) {
+                  modelRequest.current?.abort();
+                  modelRequest.current = null;
+                  setLoading(false);
+                  setLoadError(null);
+                }
+                await updateProvider(id, {
+                  ...connection,
+                  ...(endpointChanged ? { models: [], contextTokens: {} } : {}),
+                });
+              }}
+            />
+          ) : info.needsKey ? (
             <Field
               label={t("providers.apiKey")}
               htmlFor={keyId}
@@ -366,6 +467,7 @@ function ProviderForm({
                   <button
                     type="button"
                     disabled={!canLoad || loading}
+                    aria-label={loading ? t("providers.refreshing") : t("providers.refresh")}
                     onClick={loadModels}
                     className="inline-flex cursor-pointer items-center gap-1 text-foreground underline-offset-4 hover:underline disabled:cursor-default disabled:no-underline disabled:opacity-50"
                   >
@@ -380,9 +482,11 @@ function ProviderForm({
                     ? t("providers.loadFailed", { error: loadError })
                     : saved.models.length > 0
                       ? t("providers.modelsLoaded", { count: saved.models.length })
-                      : info.local
-                        ? t("providers.modelsEmptyLocal", { name: info.name })
-                        : t("providers.modelsSuggested", { name: info.name })
+                      : custom
+                        ? t("providers.custom.modelsHint")
+                        : info.local
+                          ? t("providers.modelsEmptyLocal", { name: info.name })
+                          : t("providers.modelsSuggested", { name: info.name })
                 }
               >
                 {models.length > 0 ? (
@@ -424,6 +528,7 @@ function ProviderForm({
                     aria-label={t("providers.addModel")}
                     placeholder={t("providers.addModelPlaceholder")}
                     value={newModel}
+                    maxLength={custom ? 200 : undefined}
                     spellCheck={false}
                     onChange={(event) => setNewModel(event.target.value)}
                     className="font-mono"
@@ -462,7 +567,7 @@ function ProviderForm({
             </Field>
           ) : null}
 
-          {info.local ? (
+          {info.local || custom ? (
             <Field
               label={t("providers.context")}
               htmlFor={contextId}
@@ -482,6 +587,18 @@ function ProviderForm({
                 }}
               />
             </Field>
+          ) : null}
+          {custom ? (
+            <div className="border-t pt-4">
+              <Button
+                variant="ghost"
+                className="text-destructive"
+                onClick={() => onRemoveCustom({ id, name })}
+              >
+                <Icon icon={Delete02Icon} size={16} />
+                {t("providers.custom.remove")}
+              </Button>
+            </div>
           ) : null}
         </div>
       </Sheet.Body>

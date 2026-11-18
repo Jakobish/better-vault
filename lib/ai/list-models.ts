@@ -1,8 +1,15 @@
 import { listChatGPTModels } from "@/lib/chatgpt/model";
-import { providers, type ProviderCredentials, type ProviderId } from "./catalog";
+import {
+  isCustomProviderId,
+  providers,
+  type ProviderCredentials,
+  type ProviderId,
+} from "./catalog";
+import { customProviderBaseURL } from "./custom-provider";
 import { listOpenCodeModels } from "./opencode";
 import {
   chatGPTAllowed,
+  fetchCustomProviderEndpoint,
   fetchProviderEndpoint,
   localProvidersAllowed,
   parseBaseURL,
@@ -67,6 +74,25 @@ async function listModelIds(
   credentials: ProviderCredentials,
   contextTokens: Record<string, number>,
 ): Promise<string[]> {
+  if (isCustomProviderId(provider)) {
+    const base = customProviderBaseURL(credentials.baseURL ?? "");
+    if (!base) throw new Error("Enter a valid HTTP or HTTPS API base URL in Settings.");
+    const body = await getJson<{ data: { id: string }[] }>(
+      `${base}/models`,
+      credentials.apiKey ? { authorization: `Bearer ${credentials.apiKey}` } : {},
+      fetchCustomProviderEndpoint,
+    );
+    if (!Array.isArray(body?.data)) throw new Error("The server returned an invalid model list.");
+    return [
+      ...new Set(
+        body.data.flatMap((model) =>
+          typeof model?.id === "string" && model.id.trim() && model.id.length <= 200
+            ? [model.id]
+            : [],
+        ),
+      ),
+    ].sort(byNewest);
+  }
   const info = providers[provider];
   if (provider === "openai" && credentials.chatgpt) {
     if (!chatGPTAllowed()) throw new Error("Sign in with ChatGPT works in the desktop app only.");

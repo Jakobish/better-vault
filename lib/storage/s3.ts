@@ -39,8 +39,10 @@ async function bucketUrl(credentials: S3Credentials): Promise<{ url: string; reg
   const custom = credentials.endpoint?.trim();
   if (custom) {
     const endpoint = new URL(custom);
-    // On a server others can reach, a custom address must be public; the desktop app may use a local one.
-    if (!isDesktopRuntime()) await assertPublicUrl(endpoint);
+    await assertPublicUrl(
+      endpoint,
+      isDesktopRuntime() || process.env.BETTER_VAULT_ALLOW_PRIVATE_URLS !== "false",
+    );
     return { url: `${endpoint.origin}${endpoint.pathname.replace(/\/$/, "")}/${bucket}`, region };
   }
   return { url: `https://s3.${region}.amazonaws.com/${bucket}`, region };

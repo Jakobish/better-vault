@@ -81,6 +81,6 @@ export async function POST(request: Request) {
     }));
     return Response.json({ title: result.title, data: data.data, files });
   } catch (error) {
-    return Response.json({ error: describeError(error) }, { status: 502 });
+    return Response.json({ error: describeError(error, credentials.apiKey) }, { status: 502 });
   }
 }

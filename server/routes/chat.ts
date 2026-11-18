@@ -7,7 +7,7 @@ import {
   type LanguageModelUsage,
 } from "ai";
 import { z } from "zod";
-import { providers } from "@/lib/ai/catalog";
+import { isCustomProviderId, providerInfo } from "@/lib/ai/catalog";
 import { describeError } from "@/lib/ai/errors";
 import { chatSystemPrompt } from "@/lib/ai/prompts";
 import { createLanguageModel, createWebSearchTools } from "@/lib/ai/providers";
@@ -103,22 +103,20 @@ export async function POST(request: Request) {
   const messages = parsed.data.messages as unknown as ChatMessage[];
   const passages = parsed.data.passages as Passage[];
 
-  if (mode === "web" && !providers[model.provider].webSearch) {
-    return Response.json(
-      { error: `${providers[model.provider].name} has no built-in web search.` },
-      { status: 400 },
-    );
+  const info = providerInfo(model.provider);
+  if (mode === "web" && !info.webSearch) {
+    return Response.json({ error: `${info.name} has no built-in web search.` }, { status: 400 });
   }
 
   let languageModel;
   try {
     languageModel = await createLanguageModel(model, credentials, effort);
   } catch (error) {
-    return Response.json({ error: describeError(error) }, { status: 400 });
+    return Response.json({ error: describeError(error, credentials.apiKey) }, { status: 400 });
   }
 
-  // Local models often can't call tools, so they answer in text only.
-  const visuals = parsed.data.visuals && !providers[model.provider].local;
+  // Local and custom models may only support plain chat messages.
+  const visuals = parsed.data.visuals && !info.local && !isCustomProviderId(model.provider);
   const searchTools = mode === "web" ? createWebSearchTools(model, credentials) : undefined;
   const tools = visuals ? { ...searchTools, ...createVisualTools() } : searchTools;
   const options = {
@@ -166,7 +164,7 @@ export async function POST(request: Request) {
         if (part.type === "finish") return { usage: tokenUsage(part.totalUsage) };
         return undefined;
       },
-      onError: describeError,
+      onError: (error) => describeError(error, credentials.apiKey),
     }),
   });
 }

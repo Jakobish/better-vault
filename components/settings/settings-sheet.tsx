@@ -21,7 +21,13 @@ import { Sheet } from "@/components/panelui/sheet";
 import { useTheme } from "@/components/providers/theme-provider";
 import { providerIds } from "@/lib/ai/catalog";
 import { deleteAllData } from "@/lib/db/backup";
-import { isProviderReady, resetProviderSettings, useSettings } from "@/lib/db/settings";
+import {
+  customProviderIds,
+  isProviderReady,
+  removeCustomProvider,
+  resetProviderSettings,
+  useSettings,
+} from "@/lib/db/settings";
 import { getLanguage } from "@/lib/i18n/config";
 import { useUpdates } from "@/lib/updates/use-updates";
 import { appVersion } from "@/lib/version";
@@ -44,7 +50,7 @@ import { CalendarSubscribeDialog } from "./calendar-subscribe-dialog";
 import { ChatGPTDialog } from "./chatgpt-dialog";
 import { DataPanel } from "./data-panel";
 import { LanguagePanel } from "./language-panel";
-import { ProvidersPanel } from "./providers-panel";
+import { ProvidersPanel, type CustomProviderRemoval } from "./providers-panel";
 import { SettingsRow } from "./settings-row";
 import { routes } from "@/lib/routes";
 
@@ -105,6 +111,7 @@ export function SettingsSheet({ open: openProp, onOpenChange, trigger, page }: S
   };
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
   const [confirmProviderReset, setConfirmProviderReset] = useState(false);
+  const [providerToRemove, setProviderToRemove] = useState<CustomProviderRemoval | null>(null);
   const [chatGPTOpen, setChatGPTOpen] = useState(false);
   const [subscribeOpen, setSubscribeOpen] = useState(false);
   const { t: tCommon } = useTranslation();
@@ -123,7 +130,10 @@ export function SettingsSheet({ open: openProp, onOpenChange, trigger, page }: S
     updates.state.status === "ready"
       ? updates.state.version
       : null;
-  const ready = settings ? providerIds.filter((id) => isProviderReady(settings, id)).length : 0;
+  const ready = settings
+    ? [...providerIds, ...customProviderIds(settings)].filter((id) => isProviderReady(settings, id))
+        .length
+    : 0;
 
   return (
     <>
@@ -255,6 +265,10 @@ export function SettingsSheet({ open: openProp, onOpenChange, trigger, page }: S
           </Sheet.Next>
           <Sheet.Next name="providers" closeLabel={tCommon("actions.close")}>
             <ProvidersPanel
+              onRemoveCustom={(provider) => {
+                setOpen(false);
+                setProviderToRemove(provider);
+              }}
               onReset={() => {
                 setOpen(false);
                 setConfirmProviderReset(true);
@@ -303,6 +317,25 @@ export function SettingsSheet({ open: openProp, onOpenChange, trigger, page }: S
       </Sheet>
       <ChatGPTDialog open={chatGPTOpen} onOpenChange={setChatGPTOpen} />
       <CalendarSubscribeDialog open={subscribeOpen} onOpenChange={setSubscribeOpen} />
+      <ConfirmDialog
+        open={providerToRemove !== null}
+        onOpenChange={(open) => {
+          if (!open) setProviderToRemove(null);
+        }}
+        title={t("providers.custom.removeTitle", { name: providerToRemove?.name })}
+        body={t("providers.custom.removeWarning")}
+        confirmLabel={t("providers.custom.remove")}
+        onConfirm={async () => {
+          if (!providerToRemove) return;
+          try {
+            await removeCustomProvider(providerToRemove.id);
+            toast.success(t("providers.custom.removed"));
+          } catch (error) {
+            toast.error(t("providers.custom.removeFailed"));
+            throw error;
+          }
+        }}
+      />
       <ConfirmDialog
         open={confirmProviderReset}
         onOpenChange={setConfirmProviderReset}

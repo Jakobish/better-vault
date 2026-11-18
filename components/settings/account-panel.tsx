@@ -18,12 +18,12 @@ import { Button } from "@/components/panelui/button";
 import { Input } from "@/components/panelui/input";
 import { Sheet } from "@/components/panelui/sheet";
 import { signIn, signOut, useAccount } from "@/lib/account/account";
-import { providerIds, providers } from "@/lib/ai/catalog";
+import { providerIds } from "@/lib/ai/catalog";
 import { desktopBridge } from "@/lib/desktop/bridge";
 import { useFolders } from "@/lib/db/folders";
 import { useNotebookCounts, useNotebooks } from "@/lib/db/notebooks";
 import { updateProfile, useProfile } from "@/lib/db/profile";
-import { isProviderReady, useSettings } from "@/lib/db/settings";
+import { customProviderIds, isProviderReady, providerName, useSettings } from "@/lib/db/settings";
 import { avatarFromFile } from "@/lib/profile/avatar";
 import { SettingsRow } from "./settings-row";
 
@@ -56,7 +56,9 @@ export function AccountPanel() {
 
   const shownName = name ?? profile?.name ?? "";
   const chatgpt = settings?.providers.openai.chatgpt ?? null;
-  const ready = settings ? providerIds.filter((id) => isProviderReady(settings, id)) : [];
+  const ready = settings
+    ? [...providerIds, ...customProviderIds(settings)].filter((id) => isProviderReady(settings, id))
+    : [];
   const sources = counts ? [...counts.values()].reduce((sum, count) => sum + count.sources, 0) : 0;
 
   const user = account?.user;
@@ -246,7 +248,7 @@ export function AccountPanel() {
                 label={t("account.providers")}
                 hint={
                   ready.length > 0
-                    ? ready.map((id) => providers[id].name).join(", ")
+                    ? ready.map((id) => providerName(settings, id)).join(", ")
                     : t("rows.providersNone")
                 }
               />

@@ -1,5 +1,4 @@
 import { assertPublicUrl } from "@/lib/sources/network";
-import { en } from "zod/v4/locales";
 
 /**
  * Server-side switches, set with environment variables when hosting
@@ -50,10 +49,34 @@ export async function fetchProviderEndpoint(
   input: RequestInfo | URL,
   init?: RequestInit,
 ): Promise<Response> {
+  return fetchCheckedEndpoint(
+    input,
+    init,
+    desktopRuntime || process.env.BETTER_VAULT_ALLOW_PRIVATE_URLS !== "false",
+  );
+}
+
+/** Private custom endpoints are available in desktop and explicitly private web installs. */
+export async function fetchCustomProviderEndpoint(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response> {
+  return fetchCheckedEndpoint(
+    input,
+    init,
+    desktopRuntime || process.env.BETTER_VAULT_ALLOW_PRIVATE_URLS === "true",
+  );
+}
+
+async function fetchCheckedEndpoint(
+  input: RequestInfo | URL,
+  init: RequestInit | undefined,
+  allowPrivate: boolean,
+): Promise<Response> {
   const url = new URL(
     typeof input === "string" || input instanceof URL ? input.toString() : input.url,
   );
-  if (!isDesktopRuntime()) await assertPublicUrl(url);
+  await assertPublicUrl(url, allowPrivate);
 
   const response = await fetch(input, { ...init, redirect: "manual" });
   if (response.status >= 300 && response.status < 400) {

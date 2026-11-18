@@ -1,5 +1,7 @@
-import type { ProviderId } from "@/lib/ai/catalog";
+import { PlugSocketIcon } from "@hugeicons/core-free-icons";
+import { isCustomProviderId, type ProviderId } from "@/lib/ai/catalog";
 import { Logo } from "@/components/brand/logo";
+import { Icon } from "@/components/icon";
 import { providerMarks } from "@/lib/ai/provider-icons";
 
 /** A provider's logo, in the text colour. Decorative: the name is always shown beside it. */
@@ -14,6 +16,8 @@ export function ProviderIcon({
 }) {
   // Better Vault AI shows the app's own crow, so it's clear the subscription is in use.
   if (provider === "bettervault") return <Logo size={size} className={className} />;
+  if (isCustomProviderId(provider))
+    return <Icon icon={PlugSocketIcon} size={size} className={className} />;
   const mark = providerMarks[provider];
   return (
     <svg

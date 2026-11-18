@@ -2,7 +2,7 @@ import { AiBrain02Icon } from "@hugeicons/core-free-icons";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/icon";
 import { Menu } from "@/components/panelui/menu";
-import { providers, type Effort, type ProviderId } from "@/lib/ai/catalog";
+import { providerInfo, type Effort, type ProviderId } from "@/lib/ai/catalog";
 import { effortFor, updateProvider, type AppSettings } from "@/lib/db/settings";
 
 /**
@@ -17,7 +17,7 @@ export function EffortMenu({
   provider: ProviderId;
 }) {
   const { t } = useTranslation();
-  const levels = providers[provider].efforts;
+  const levels = providerInfo(provider).efforts;
   if (levels.length === 0) return null;
   const effort = effortFor(settings, provider);
   const name = t(`effort.levels.${effort}`);

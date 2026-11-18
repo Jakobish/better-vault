@@ -11,6 +11,7 @@ import { createOutput, deleteOutput, markInterruptedOutputs } from "./outputs";
 import { asBackend, createSqliteStore, schemaVersion } from "./sqlite/store";
 import { setStoreForTests, store } from "./store";
 import { conversationTitle } from "@/lib/chat/title";
+import { modelKey, parseModelKey } from "@/lib/ai/catalog";
 import {
   deleteConversation,
   latestConversation,
@@ -21,10 +22,13 @@ import {
 } from "./messages";
 import {
   activeModel,
+  addCustomProvider,
   availableModels,
+  credentialsFor,
   defaultSettings,
   getSettings,
   isProviderReady,
+  removeCustomProvider,
   resetProviderSettings,
   updateProvider,
   updateSettings,
@@ -538,6 +542,45 @@ describe.each(backends)("%s store", (name, create) => {
       expect(activeModel(settings)).toBeNull();
     });
 
+    it("keeps custom connections distinct when their model IDs match", async () => {
+      const [first, second] = await Promise.all([
+        addCustomProvider({ name: "Local", baseURL: "http://localhost:8000/v1", apiKey: "" }),
+        addCustomProvider({
+          name: "Remote",
+          baseURL: "https://example.com/api/v1",
+          apiKey: "test",
+        }),
+      ]);
+      expect(availableModels(await getSettings())).toEqual([]);
+
+      const modelId = "shared/model:latest";
+      await Promise.all([
+        updateProvider(first, { models: [modelId] }),
+        updateProvider(second, { models: [modelId] }),
+      ]);
+      const firstModel = { provider: first, modelId };
+      const secondModel = { provider: second, modelId };
+      const configured = await getSettings();
+      expect(availableModels(configured)).toEqual([firstModel, secondModel]);
+      expect(credentialsFor(configured, first)).toEqual({ baseURL: "http://localhost:8000/v1" });
+      expect(credentialsFor(configured, second)).toEqual({
+        baseURL: "https://example.com/api/v1",
+        apiKey: "test",
+      });
+      expect(parseModelKey(modelKey(secondModel))).toEqual(secondModel);
+
+      await updateSettings((settings) => {
+        settings.model = secondModel;
+        settings.favoriteModels = [modelKey(firstModel), modelKey(secondModel)];
+      });
+      await removeCustomProvider(second);
+      await updateProvider(second, { models: ["late-response"] });
+      const saved = await getSettings();
+      expect(saved.customProviders[second]).toBeUndefined();
+      expect(activeModel(saved)).toEqual(firstModel);
+      expect(saved.favoriteModels).toEqual([modelKey(firstModel)]);
+    });
+
     it("restores AI provider defaults without clearing connected accounts or other settings", async () => {
       const defaults = defaultSettings();
       const chatgpt = { email: "reader@example.com", name: "Reader" };
@@ -571,6 +614,7 @@ describe.each(backends)("%s store", (name, create) => {
         settings.favoriteModels = ["openai:custom"];
       });
       await store().putSetting("studio", { hidden: [], visuals: false });
+      await addCustomProvider({ name: "Proxy", baseURL: "https://example.com/v1", apiKey: "test" });
 
       await resetProviderSettings();
 

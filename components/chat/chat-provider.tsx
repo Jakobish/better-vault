@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { stableContext } from "@/lib/context";
-import { providers } from "@/lib/ai/catalog";
+import { providerInfo } from "@/lib/ai/catalog";
 import type { ChatMessage, ChatMode } from "@/lib/chat/types";
 import { latestConversation, loadChat, removeChatMessage, saveChat } from "@/lib/db/messages";
 import {
@@ -189,7 +189,7 @@ function ChatRunner({
       });
       const [allSkills, studio] = await Promise.all([listSkills(), getStudioSettings()]);
       return {
-        mode: mode === "web" && providers[model.provider].webSearch ? "web" : "sources",
+        mode: mode === "web" && providerInfo(model.provider).webSearch ? "web" : "sources",
         model,
         credentials: credentialsFor(settings, model.provider),
         effort: effortFor(settings, model.provider),

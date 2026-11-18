@@ -60,6 +60,9 @@ export async function POST(request: Request) {
       .slice(0, 4);
     return Response.json({ suggestions });
   } catch (error) {
-    return Response.json({ error: describeError(error) }, { status: 502 });
+    return Response.json(
+      { error: describeError(error, parsed.data.credentials.apiKey) },
+      { status: 502 },
+    );
   }
 }

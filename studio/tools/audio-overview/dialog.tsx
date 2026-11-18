@@ -7,11 +7,12 @@ import { Alert } from "@/components/panelui/alert";
 import { Button } from "@/components/panelui/button";
 import { Select } from "@/components/panelui/select";
 import { useWorkspace } from "@/components/workspace/workspace-context";
-import { modelKey, parseModelKey, providers } from "@/lib/ai/catalog";
+import { modelKey, parseModelKey } from "@/lib/ai/catalog";
 import type { Voice } from "@/lib/ai/voices";
 import {
   activeModel,
   availableModels,
+  providerName,
   speechCredentialsFrom,
   useSettings,
 } from "@/lib/db/settings";
@@ -319,7 +320,7 @@ function WriterField({
     value && models.some((model) => modelKey(model) === modelKey(value)) ? value : fallback;
   const items = models.map((model) => ({
     value: modelKey(model),
-    label: `${providers[model.provider].name} · ${model.modelId}`,
+    label: `${providerName(settings, model.provider)} · ${model.modelId}`,
   }));
   return (
     <Field label={t("audio-overview.writer")} htmlFor={id} hint={t("audio-overview.writerHint")}>

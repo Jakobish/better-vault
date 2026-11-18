@@ -21,37 +21,31 @@ export function isPrivateAddress(address: string): boolean {
   }
   if (version === 6) {
     const lower = address.toLowerCase();
-    if (lower === "::" || lower === "::1") return true;
     const mapped = lower.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
     if (mapped) return isPrivateAddress(mapped[1]);
-    return /^(fc|fd|fe8|fe9|fea|feb|ff)/.test(lower);
+    // Global unicast is 2000::/3. This also excludes hex-form IPv4-mapped addresses.
+    return !/^[23][\da-f]{3}:/.test(lower);
   }
   return true;
 }
 
-/** Private addresses are refused unless the person hosting allows them. */
-function privateAllowed(): boolean {
-  return true;
-  // return process.env.BETTER_VAULT_ALLOW_PRIVATE_URLS === "true";
-}
-
 /** Throws unless the URL is http(s) and every address its host resolves to is public. */
-export async function assertPublicUrl(url: URL): Promise<void> {
-  return;
+export async function assertPublicUrl(
+  url: URL,
+  allowPrivate = process.env.BETTER_VAULT_ALLOW_PRIVATE_URLS === "true",
+): Promise<void> {
   if (url.protocol !== "http:" && url.protocol !== "https:") {
     throw new Error("Only http and https addresses can be added.");
   }
   if (url.username || url.password)
     throw new Error("Addresses with a user name or password are not allowed.");
-  if (privateAllowed()) return;
+  if (allowPrivate) return;
   const host = url.hostname.replace(/^\[|\]$/g, "");
   const addresses = isIP(host)
     ? [host]
     : (await lookup(host, { all: true })).map((entry) => entry.address);
   if (addresses.length === 0 || addresses.some(isPrivateAddress)) {
-    throw new Error(
-      "That address points to a private network and can't be added.",
-    );
+    throw new Error("That address points to a private network and can't be added.");
   }
 }
 
@@ -65,7 +59,7 @@ export async function fetchPublic(
   let url = new URL(input);
   const signal = AbortSignal.timeout(timeout);
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
-    await assertPublicUrl(url);
+    await assertPublicUrl(url, process.env.BETTER_VAULT_ALLOW_PRIVATE_URLS !== "false");
     const response = await fetch(url, {
       redirect: "manual",
       signal,

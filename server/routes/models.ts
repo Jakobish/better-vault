@@ -1,11 +1,10 @@
 import { z } from "zod";
-import { providerIds } from "@/lib/ai/catalog";
 import { describeError } from "@/lib/ai/errors";
 import { listModels } from "@/lib/ai/list-models";
-import { credentialsSchema } from "@/lib/ai/request";
+import { credentialsSchema, providerIdSchema } from "@/lib/ai/request";
 
 const bodySchema = z.object({
-  provider: z.enum(providerIds),
+  provider: providerIdSchema,
   credentials: credentialsSchema,
 });
 
@@ -16,6 +15,9 @@ export async function POST(request: Request) {
   try {
     return Response.json(await listModels(parsed.data.provider, parsed.data.credentials));
   } catch (error) {
-    return Response.json({ error: describeError(error) }, { status: 502 });
+    return Response.json(
+      { error: describeError(error, parsed.data.credentials.apiKey) },
+      { status: 502 },
+    );
   }
 }

@@ -13,10 +13,19 @@ import {
   type ToolSet,
 } from "ai";
 import { chatGPTLanguageModel } from "@/lib/chatgpt/model";
-import { providers, type Effort, type ModelRef, type ProviderCredentials } from "./catalog";
+import {
+  isCustomProviderId,
+  providerInfo,
+  providers,
+  type Effort,
+  type ModelRef,
+  type ProviderCredentials,
+} from "./catalog";
+import { customProviderBaseURL } from "./custom-provider";
 import { createOpenCodeModel } from "./opencode";
 import {
   chatGPTAllowed,
+  fetchCustomProviderEndpoint,
   fetchProviderEndpoint,
   localProvidersAllowed,
   parseBaseURL,
@@ -43,7 +52,7 @@ export async function createLanguageModel(
   effort: Effort = "provider-default",
 ): Promise<LanguageModel> {
   const model = await baseLanguageModel(ref, credentials);
-  if (effort === "provider-default" || !providers[ref.provider].efforts.includes(effort))
+  if (effort === "provider-default" || !providerInfo(ref.provider).efforts.includes(effort))
     return model;
   // Every call made with this model (chat, Studio) thinks at the chosen effort.
   return wrapLanguageModel({
@@ -56,6 +65,36 @@ async function baseLanguageModel(
   ref: ModelRef,
   credentials: ProviderCredentials,
 ): Promise<LanguageModel> {
+  if (isCustomProviderId(ref.provider)) {
+    const baseURL = customProviderBaseURL(credentials.baseURL ?? "");
+    if (!baseURL) throw new Error("Enter a valid HTTP or HTTPS API base URL in Settings.");
+    const model = createOpenAICompatible({
+      name: ref.provider,
+      baseURL,
+      apiKey: credentials.apiKey,
+      fetch: fetchCustomProviderEndpoint,
+    }).chatModel(ref.modelId);
+    return wrapLanguageModel({
+      model,
+      middleware: {
+        transformParams: async ({ params }) => {
+          const format = params.responseFormat;
+          if (format?.type !== "json" || !format.schema) return params;
+          // Some compatible servers support JSON mode without the JSON schema extension.
+          const schema = `Return only JSON that matches this schema:\n${JSON.stringify(format.schema)}`;
+          const [first, ...rest] = params.prompt;
+          return {
+            ...params,
+            responseFormat: { type: "json" },
+            prompt:
+              first?.role === "system"
+                ? [{ ...first, content: `${first.content}\n\n${schema}` }, ...rest]
+                : [{ role: "system", content: schema }, ...params.prompt],
+          };
+        },
+      },
+    });
+  }
   const info = providers[ref.provider];
   if (info.kind !== "chat") throw new Error(`${info.name} makes audio only; choose another model.`);
   if (ref.provider === "openai" && credentials.chatgpt) {
@@ -99,7 +138,7 @@ async function baseLanguageModel(
 
 /** Builds an image model for one request. Only OpenAI and Google draw pictures. */
 export function createImageModel(ref: ModelRef, credentials: ProviderCredentials): ImageModel {
-  const info = providers[ref.provider];
+  const info = providerInfo(ref.provider);
   if (info.imageModels.length === 0) throw new Error(`${info.name} has no image models.`);
   if (!credentials.apiKey) throw new Error(`Add an API key for ${info.name} in Settings.`);
   switch (ref.provider) {
@@ -114,7 +153,7 @@ export function createImageModel(ref: ModelRef, credentials: ProviderCredentials
 
 /** Builds a speech model for one request. Only ElevenLabs speaks. */
 export function createSpeechModel(ref: ModelRef, credentials: ProviderCredentials): SpeechModel {
-  const info = providers[ref.provider];
+  const info = providerInfo(ref.provider);
   if (info.kind !== "audio") throw new Error(`${info.name} does not make speech.`);
   if (!credentials.apiKey) throw new Error(`Add an API key for ${info.name} in Settings.`);
   return createElevenLabs({ apiKey: credentials.apiKey }).speech(ref.modelId);

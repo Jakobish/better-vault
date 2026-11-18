@@ -89,6 +89,12 @@ npm start
 
 Local models work when better-vault runs on the same machine as the model server. Web search is only available with providers that have it built in (OpenAI, Anthropic, Google).
 
+### OpenAI-compatible providers
+
+In **Settings → AI providers → Custom providers**, choose **Add provider**. Enter the API base URL, including any path such as `/v1`, along with a name and an API key if your server requires one. After adding the provider, choose **Load models** or enter a model ID, then pick the model in the prompt bar.
+
+You can use a private or local API address in the desktop app. For a trusted, private web installation, start the server with `BETTER_VAULT_ALLOW_PRIVATE_URLS=true` to enable those addresses for custom providers.
+
 ## 🔐 Where your data lives
 
 Notebooks, sources, chats, Studio outputs and API keys stay on your device: in your browser's IndexedDB in the web app, or in `better-vault.sqlite` in the app's data folder in the desktop app. **Settings → Data** exports and imports notebooks as a JSON file, which also moves them between the two.

@@ -15,7 +15,9 @@ export const providerIds = [
   "bettervault",
 ] as const;
 
-export type ProviderId = (typeof providerIds)[number];
+export type BuiltInProviderId = (typeof providerIds)[number];
+export type CustomProviderId = `custom-${string}`;
+export type ProviderId = BuiltInProviderId | CustomProviderId;
 
 /**
  * How much a model thinks before it answers: the AI SDK's `reasoning` call
@@ -94,7 +96,7 @@ export type SpeechProviderId = (typeof speechProviderIds)[number];
 export const imageProviderIds = ["openai", "google"] as const satisfies readonly ProviderId[];
 export type ImageProviderId = (typeof imageProviderIds)[number];
 
-export const providers: Record<ProviderId, ProviderInfo> = {
+export const providers: Record<BuiltInProviderId, ProviderInfo> = {
   openai: {
     id: "openai",
     kind: "chat",
@@ -257,8 +259,32 @@ export const providers: Record<ProviderId, ProviderInfo> = {
   },
 };
 
+const customProviderInfo: Omit<ProviderInfo, "id"> = {
+  name: "OpenAI-compatible provider",
+  kind: "chat",
+  local: false,
+  needsKey: false,
+  webSearch: false,
+  suggestedModels: [],
+  contextChars: 12_000,
+  contextTokens: 3_000,
+  imageModels: [],
+  efforts: [],
+};
+
+export function isCustomProviderId(value: unknown): value is CustomProviderId {
+  return typeof value === "string" && /^custom-[a-zA-Z0-9]{16}$/.test(value);
+}
+
 export function isProviderId(value: unknown): value is ProviderId {
-  return typeof value === "string" && (providerIds as readonly string[]).includes(value);
+  return (
+    typeof value === "string" &&
+    (isCustomProviderId(value) || (providerIds as readonly string[]).includes(value))
+  );
+}
+
+export function providerInfo(id: ProviderId): Omit<ProviderInfo, "id"> {
+  return isCustomProviderId(id) ? customProviderInfo : providers[id];
 }
 
 /** Which model a request goes to. */

@@ -42,7 +42,7 @@ function chatGPTMessage(text: string | undefined): string | undefined {
 }
 
 /** A short, human-readable reason for a failed provider call. */
-export function describeError(error: unknown): string {
+export function describeError(error: unknown, apiKey?: string): string {
   let message: string;
   const plan = APICallError.isInstance(error)
     ? (chatGPTMessage(error.responseBody) ?? chatGPTMessage(error.message))
@@ -59,5 +59,5 @@ export function describeError(error: unknown): string {
   } else {
     message = String(error);
   }
-  return redactSecrets(message).slice(0, 500);
+  return redactSecrets(apiKey ? message.replaceAll(apiKey, "[key]") : message).slice(0, 500);
 }
