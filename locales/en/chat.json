@@ -58,6 +58,9 @@
     "label": "Message actions",
     "copy": "Copy",
     "copied": "Copied",
+    "createNote": "Create note",
+    "answerNote": "Chat answer",
+    "noteCreated": "Created note “{{title}}”",
     "retry": "Try again",
     "sendAgain": "Send again",
     "delete": "Delete message"

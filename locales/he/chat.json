@@ -62,6 +62,9 @@
     "label": "פעולות הודעה",
     "copy": "העתקה",
     "copied": "הועתק",
+    "createNote": "יצירת פתק",
+    "answerNote": "תשובת צ׳אט",
+    "noteCreated": "הפתק „{{title}}” נוצר",
     "retry": "ניסיון נוסף",
     "sendAgain": "שליחה חוזרת",
     "delete": "מחיקת הודעה"

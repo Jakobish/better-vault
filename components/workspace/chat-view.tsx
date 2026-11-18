@@ -7,7 +7,10 @@ import { useChatSession } from "@/components/chat/chat-provider";
 import { Icon } from "@/components/icon";
 import { Message } from "@/components/panelui/message";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { createNote } from "@/lib/db/notes";
 import { useSources } from "@/lib/db/sources";
+import { DEFAULT_VAULT } from "@/lib/db/vaults";
+import { stripCitations } from "@/lib/grounding/passages";
 import { useWorkspace } from "./workspace-context";
 
 const SUGGESTIONS = ["summary", "questions", "terms", "plan"] as const;
@@ -16,7 +19,7 @@ const SUGGESTIONS = ["summary", "questions", "terms", "plan"] as const;
 export function ChatView() {
   const { t } = useTranslation("chat");
   const chat = useChatSession();
-  const { readSource } = useWorkspace();
+  const { notebook, readSource } = useWorkspace();
   const scroller = useRef<HTMLDivElement>(null);
   const last = chat.messages.at(-1);
 
@@ -83,6 +86,19 @@ export function ChatView() {
               isLast={at === chat.messages.length - 1}
               actionsDisabled={busy}
               onRetry={retry}
+              onCreateNote={(text) =>
+                runAction(async () => {
+                  const body = stripCitations(text);
+                  const title = body.match(/^\s{0,3}#{1,6}\s+(.+)$/m)?.[1]?.trim();
+                  const note = await createNote({
+                    vaultId: notebook.vaultId ?? DEFAULT_VAULT,
+                    notebookId: notebook.id,
+                    title: title || t("actions.answerNote"),
+                    body,
+                  });
+                  toast.success(t("actions.noteCreated", { title: note.title }));
+                })
+              }
               onDelete={() => runAction(() => chat.removeMessage(message.id))}
               onOpenPassage={(passage) => readSource(passage.sourceId, passage.chunkId)}
             />

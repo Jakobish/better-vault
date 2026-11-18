@@ -1,4 +1,4 @@
-import { Delete02Icon, Globe02Icon, RepeatIcon } from "@hugeicons/core-free-icons";
+import { Delete02Icon, Globe02Icon, NoteAddIcon, RepeatIcon } from "@hugeicons/core-free-icons";
 import { getToolName, isToolUIPart } from "ai";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -28,6 +28,7 @@ interface AssistantMessageProps {
   isLast: boolean;
   actionsDisabled: boolean;
   onRetry: () => void;
+  onCreateNote: (text: string) => void;
   onDelete: () => void;
   onOpenPassage: (passage: PassageRef) => void;
 }
@@ -39,6 +40,7 @@ export function AssistantMessage({
   isLast,
   actionsDisabled,
   onRetry,
+  onCreateNote,
   onDelete,
   onOpenPassage,
 }: AssistantMessageProps) {
@@ -187,6 +189,11 @@ export function AssistantMessage({
                 copiedLabel={t("actions.copied")}
                 copy={() => stripCitations(text)}
               />
+            ) : null}
+            {text ? (
+              <Message.Action label={t("actions.createNote")} onClick={() => onCreateNote(text)}>
+                <Icon icon={NoteAddIcon} />
+              </Message.Action>
             ) : null}
             {isLast && text ? (
               <Message.Action
