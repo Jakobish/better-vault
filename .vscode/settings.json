@@ -6,7 +6,8 @@
         "**/.jj": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
-        "**/.mdocfiles": true
+        "**/.mdocfiles": true,
+        "**/*.test.ts": true
     },
     "python.terminal.useEnvFile": true
 }
