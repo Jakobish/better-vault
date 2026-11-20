@@ -1,6 +1,7 @@
-# AI-assisted note editing
+# Reusable AI-assisted Markdown editing
 
-This specification defines the first AI features in the Markdown notes editor.
+This specification defines the first AI features in the shared Markdown editor, initially enabled
+only for notes.
 
 The feature helps you rewrite and extend the note you are already editing. It uses only the
 current note as context, shows every proposed change before it touches the note, and keeps the
@@ -12,7 +13,7 @@ accepted result in CodeMirror's normal undo history.
 | --------------- | -------------------------------------------------- |
 | Status          | Ready for implementation                           |
 | Scope           | First release                                      |
-| Editor          | CodeMirror 6 Live Preview                          |
+| Editor          | Shared CodeMirror 6 Live Preview Markdown editor   |
 | AI transport    | Vercel AI SDK through the app's stateless API      |
 | Storage changes | None                                               |
 | Desktop changes | Shared API route only; desktop checks are required |
@@ -37,8 +38,51 @@ The first release does not search the vault, follow `[[wikilinks]]`, retrieve no
 or use provider web search. It does not edit more than one note, run unattended, keep AI
 provenance, save custom actions, or retain a prompt history.
 
-It does not add AI to the reading view, Skills editor, note title, graph, backlinks, or properties.
-It does not add a dedicated notes model setting or a default keyboard shortcut.
+It does not enable AI in the reading view, Skills editor, note title, graph, backlinks, or
+properties. The implementation must nevertheless keep the Markdown editor and AI capability
+reusable: enabling it in another Markdown editor later must be a host configuration change, not a
+copy of Notes code. It does not add a dedicated editing model setting or a default keyboard
+shortcut.
+
+## Reuse boundary
+
+`MarkdownEditor` is the application-wide CodeMirror editor for Markdown documents. Notes and
+Skills already need the same Markdown editing engine, and future Markdown surfaces should use it
+instead of creating editor-specific CodeMirror wrappers.
+
+AI editing is an optional editor capability. A host enables it with an `aiEditing` configuration;
+omitting the configuration keeps every AI extension, menu, popover, request, and shortcut out of
+that editor. Do not use a boolean such as `editWithAi`: the host must describe the document and can
+constrain the capability without teaching the shared editor about notes, skills, or Studio
+outputs.
+
+```ts
+interface MarkdownAiEditingConfig {
+    /** Stable kind used for policy, prompt wording, and telemetry-free diagnostics. */
+    documentKind: "note" | "skill" | "studio-output";
+    /** Read at request time so a renamed document uses its current title. */
+    getContext: () => { title: string };
+    /** Presets and scopes this host permits; shared defaults are used when omitted. */
+    actions?: readonly MarkdownAiAction[];
+    scopes?: readonly MarkdownAiScope[];
+}
+
+interface MarkdownEditorProps {
+    // Existing document, change, completion, link, label, and placeholder props.
+    aiEditing?: MarkdownAiEditingConfig;
+}
+```
+
+This is a capability contract, not a requirement to preserve these exact names. Prefer a
+configuration object to a growing set of props such as `editWithAi`, `aiTitle`, `aiScopes`, and
+`aiActions`. The shared editor owns Markdown and CodeMirror behavior. The host owns persistence,
+the current document metadata, and the decision to enable the capability. The editor state—not
+`getContext`—is the source of truth for the body and target offsets, so a request cannot accidentally
+combine stale host text with the current selection.
+
+The first release passes `aiEditing` only from the Notes workspace. The Skills workspace continues
+to use `MarkdownEditor` without it. This preserves the stated product scope while proving that no
+Notes-only dependency is required by the editor or AI implementation.
 
 ## Actions
 
@@ -111,9 +155,10 @@ The prompt is not stored after the session ends. Closing the popover before gene
 
 ## Context and prompts
 
-Each request contains the note title, complete note body when it fits, the target offsets, the
-original target text, the action or custom instruction, and the requested operation. The prompt
-marks the target with unambiguous delimiters and tells the model to return only replacement text.
+Each request contains the document kind and title, complete Markdown body when it fits, the target
+offsets, the original target text, the action or custom instruction, and the requested operation.
+The prompt marks the target with unambiguous delimiters and tells the model to return only
+replacement text.
 
 The server prompt requires the model to preserve Markdown, `[[wikilinks]]`, URLs, code, citations,
 frontmatter, and factual claims unless the instruction explicitly asks to change them. It must
@@ -218,21 +263,21 @@ editor destruction, and refinement.
 
 ## Module design
 
-The CodeMirror AI integration is one deep module. Its interface exposes high-level editor commands
-and observable session state; its implementation owns offsets, `ChangeDesc` mapping, decorations,
-widgets, hunk decisions, conflict detection, and commit transactions. React callers never store or
-transform CodeMirror positions.
+The CodeMirror AI integration is one deep, reusable Markdown-editor module. Its interface exposes
+high-level editor commands and observable session state; its implementation owns offsets,
+`ChangeDesc` mapping, decorations, widgets, hunk decisions, conflict detection, and commit
+transactions. React callers never store or transform CodeMirror positions.
 
 ```ts
-interface NoteAiEditor {
-    start(action: NoteAiAction): NoteAiTarget;
-    startAt(target: NoteAiTarget): void;
+interface MarkdownAiEditor {
+    start(action: MarkdownAiAction): MarkdownAiTarget;
+    startAt(target: MarkdownAiTarget): void;
     showStream(requestId: string, text: string): void;
     showReview(requestId: string, replacement: string): void;
     decide(hunkId: string, decision: "accept" | "reject"): void;
     commit(): void;
     cancel(): void;
-    subscribe(listener: (state: NoteAiEditorState) => void): () => void;
+    subscribe(listener: (state: MarkdownAiEditorState) => void): () => void;
 }
 ```
 
@@ -242,16 +287,22 @@ callers use the same interface.
 
 The implementation should be divided by responsibility without exposing extra seams:
 
-| Module                        | Responsibility                                                                                                 |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `components/notes/editor/ai/` | Deep CodeMirror module, selection menu anchor, decorations, widgets, target mapping, review and commit.        |
-| `components/notes/ai/`        | React prompt, scope menu, context chips, model picker and request orchestration.                               |
-| `lib/notes/ai/`               | Shared request types, scope extraction, context budgeting, prompt construction and pure diff/review functions. |
-| `server/routes/note-edit.ts`  | Validate the request, create the configured language model and return a plain text stream.                     |
+| Module                           | Responsibility                                                                                                  |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `components/markdown-editor/`    | Shared `MarkdownEditor`, base CodeMirror extensions, and host-neutral editor contract.                          |
+| `components/markdown-editor/ai/` | Deep CodeMirror AI module, menus, prompt UI, decorations, target mapping, review, and request orchestration.    |
+| `lib/markdown/ai/`               | Shared request types, scope extraction, context budgeting, prompt construction, and pure diff/review functions. |
+| `server/routes/markdown-edit.ts` | Validate the request, create the configured language model, and return a plain text stream.                     |
 
 The React orchestration module accepts the editor interface, not an `EditorView`. It reads settings
 fresh for each request, resolves the active or overridden model, sends credentials and effort, and
 passes stream updates back to the editor module.
+
+Notes-specific completion, wikilink resolution, and persistence remain host-supplied extensions
+and callbacks. They must not be imported by the shared AI module. The AI module may preserve
+Obsidian syntax as a general Markdown safety rule, but it must not query notes, vaults, sources, or
+Skills. Shared UI strings belong under a `markdownEditor.ai` namespace; a host may supply only the
+document-kind label needed for context disclosure.
 
 Scope extraction and diff assembly are in-process pure computation. They need no adapter. The
 provider is a true external dependency at the server seam; route tests mock `createLanguageModel`
@@ -259,11 +310,11 @@ or the resulting language model while exercising the route's real validation and
 
 ## API route
 
-Add `POST /api/notes/edit` to `server/app.ts`. The request is stateless and uses the same model,
+Add `POST /api/markdown/edit` to `server/app.ts`. The request is stateless and uses the same model,
 credentials, and effort schemas as chat.
 
 ```ts
-const noteEditRequest = z.object({
+const markdownEditRequest = z.object({
     model: modelRefSchema,
     credentials: credentialsSchema,
     effort: effortSchema,
@@ -277,17 +328,20 @@ const noteEditRequest = z.object({
         "refine",
     ]),
     instruction: z.string().max(10_000).optional(),
-    title: z.string().max(500),
-    note: z.string().max(MAX_NOTE_CONTEXT),
+    document: z.object({
+        kind: z.enum(["note", "skill", "studio-output"]),
+        title: z.string().max(500),
+    }),
+    markdown: z.string().max(MAX_MARKDOWN_CONTEXT),
     target: z.object({ from: z.number().int().nonnegative(), to: z.number().int().nonnegative() }),
     original: z.string().max(MAX_TARGET),
     previous: z.string().max(MAX_TARGET).optional(),
 });
 ```
 
-Validate `from <= to`, verify that `note.slice(from, to) === original` when the complete note was
-sent, and require an instruction for custom and refine operations. Reject malformed requests before
-creating a model.
+Validate `from <= to`, verify that `markdown.slice(from, to) === original` when the complete
+document was sent, and require an instruction for custom and refine operations. Reject malformed
+requests before creating a model.
 
 Use `createLanguageModel` and `streamText` from the AI SDK. Do not enable tools, web search, source
 retrieval, or visual output. Pass `request.signal` as the abort signal and return
@@ -305,8 +359,9 @@ only semantic colour tokens and Hugeicons. The diff needs semantic additions to 
 the existing success, danger, and muted tokens cannot express accepted, rejected, added, and
 removed states; keep `src/styles/tokens.css` and `site/app/tokens.css` synchronized if tokens change.
 
-All visible text and accessible names live under an `ai` object in both `locales/en/notes.json` and
-`locales/he/notes.json`. Controls follow logical positioning utilities. The popover and review
+All shared visible text and accessible names live under a `markdownEditor.ai` object in the
+translation resources for both English and Hebrew. Host-specific document labels may remain in
+their host namespace. Controls follow logical positioning utilities. The popover and review
 toolbar trap no focus, return focus to the target when closed, and are fully operable by keyboard.
 
 Screen readers announce generation start, completion, cancellation, errors, hunk counts, hunk
@@ -382,17 +437,22 @@ If shared tokens change, run the website checks as well.
 
 ## Implementation sequence
 
-1. Add the pure request, scope, context, and review types with tests.
-2. Add the stateless `/api/notes/edit` route and route tests.
-3. Build the deep CodeMirror module and verify mapping, review, commit, and undo through its interface.
-4. Add request orchestration, prompt, model override, scopes, context chips, and translated errors.
-5. Add the selection menu and `/ai` completion, then connect preset actions and Continue writing.
-6. Add refinement, retry, abort, accessibility announcements, and conflict handling.
-7. Run browser checks in English and Hebrew, then complete the root and desktop verification suites.
+1. Rename the current reusable editor boundary from `NoteEditor` to `MarkdownEditor`, keeping Notes
+   and Skills behavior unchanged, and add contract tests for host-supplied extensions.
+2. Add the pure request, scope, context, and review types with tests under `lib/markdown/ai`.
+3. Add the stateless `/api/markdown/edit` route and route tests.
+4. Build the opt-in deep CodeMirror module and verify mapping, review, commit, and undo through its
+   interface.
+5. Add request orchestration, prompt, model override, scopes, context chips, and translated errors.
+6. Enable the capability in Notes only; add the selection menu and `/ai` completion, then connect
+   presets and Continue writing.
+7. Add refinement, retry, abort, accessibility announcements, and conflict handling.
+8. Verify that Skills still uses the shared editor without AI, run browser checks in English and Hebrew,
+   then complete the root and desktop verification suites.
 
 ## Acceptance criteria
 
-The feature is complete when a user can select Markdown, run every preset action, see a streamed
+The feature is complete when a Notes user can select Markdown, run every preset action, see a streamed
 temporary proposal, accept and reject individual diff hunks, apply the choices together, and undo
 the entire accepted operation once. Ask AI must support all four no-selection scopes, a request-only
 model override, refinement against the original target, and visible context disclosure.
@@ -401,3 +461,7 @@ No partial generation may enter the note or autosave. Editing outside the target
 preview correctly anchored, while editing the target must require cancellation. The same behavior
 must work in the web and desktop apps, in English and Hebrew, without storing prompts, credentials,
 results, or AI provenance beyond the accepted note text.
+
+The implementation is not complete if the AI module imports Notes workspace, note persistence, or
+vault code; if Skills needs a separate CodeMirror wrapper; or if enabling AI in another Markdown
+editor requires copying the selection, prompt, streaming, diff, or commit implementation.
