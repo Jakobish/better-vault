@@ -30,6 +30,7 @@ export const namespaces = [
   "workspace",
   "studio",
   "notes",
+  "markdownEditor",
   "settings",
   "chat",
   "sources",

@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Notes: use AI to rewrite or extend Markdown, review the proposed changes inline, and undo accepted edits in one step.
 - Opt-in ChatGPT plan sign-in in the web app when you run its server on localhost.
 - Add multiple OpenAI-compatible providers with their own API addresses, keys and models in Settings → AI providers.
 - Restore the defaults in Settings → AI providers after confirming the removal of saved keys, custom settings and model preferences.

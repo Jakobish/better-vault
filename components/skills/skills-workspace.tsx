@@ -12,7 +12,8 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { Field } from "@/components/common/field";
 import { Icon } from "@/components/icon";
-import { NoteEditor } from "@/components/notes/editor/note-editor";
+import { MarkdownEditor } from "@/components/markdown-editor/markdown-editor";
+import { noteMarkdownExtensions } from "@/components/notes/editor/markdown-extensions";
 import { Input } from "@/components/panelui/input";
 import { Textarea } from "@/components/panelui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -260,13 +261,17 @@ function SkillEditor({ skill, onDeleted }: { skill: Skill; onDeleted: () => void
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t("skills.body")}</span>
           <div className="min-h-80 rounded-xl border">
-            <NoteEditor
+            <MarkdownEditor
               docId={skill.id}
               value={skill.body}
               label={t("skills.body")}
-              world={noCompletion}
-              resolves={() => false}
-              onOpenLink={() => {}}
+              configure={() =>
+                noteMarkdownExtensions({
+                  world: noCompletion,
+                  resolves: () => false,
+                  open: () => {},
+                })
+              }
               onChange={(text) => {
                 pending.current = text;
                 if (timer.current) clearTimeout(timer.current);

@@ -9,7 +9,7 @@ import {
   Note01Icon,
   SidebarRightIcon,
 } from "@hugeicons/core-free-icons";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
@@ -26,7 +26,11 @@ import { extractHeadings, sameName } from "@/lib/notes/syntax";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import type { CompletionWorld } from "./editor/completion";
-import { NoteEditor, type NoteEditorHandle } from "./editor/note-editor";
+import {
+  MarkdownEditor,
+  type MarkdownEditorHandle,
+} from "@/components/markdown-editor/markdown-editor";
+import { noteMarkdownExtensions } from "./editor/markdown-extensions";
 import { GraphView } from "./graph-view";
 import { NoteDetails } from "./note-details";
 import { NoteList } from "./note-list";
@@ -81,7 +85,7 @@ export default function NotesWorkspace() {
   // A note just made gets its title selected, ready to type over.
   const [freshNote, setFreshNote] = useState<string | null>(null);
   const history = useRef<{ back: string[]; forward: string[] }>({ back: [], forward: [] });
-  const editor = useRef<NoteEditorHandle>(null);
+  const editor = useRef<MarkdownEditorHandle>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const pendingReveal = useRef<string | null>(null);
 
@@ -343,7 +347,10 @@ export default function NotesWorkspace() {
                   type="button"
                   aria-label={t("thisVault")}
                   onClick={() =>
-                    setParams({ view: "notes", ...(activeId ? { note: activeId } : {}) })
+                    setParams({
+                      view: "notes",
+                      ...(activeId ? { note: activeId } : {}),
+                    })
                   }
                   className="flex size-5 cursor-pointer items-center justify-center rounded-full outline-none hover:bg-background focus-visible:ring-2 focus-visible:ring-ring"
                 >
@@ -532,12 +539,18 @@ export default function NotesWorkspace() {
                 autoFocus={freshNote === note.id}
               />
               <p className="mx-auto w-full max-w-[46rem] px-6 text-xs text-muted-foreground">
-                {t("updated", { time: formatRelativeTime(note.updatedAt, i18n.language) })} ·{" "}
-                {t("words", { count: note.body.trim() ? note.body.trim().split(/\s+/).length : 0 })}
+                {t("updated", {
+                  time: formatRelativeTime(note.updatedAt, i18n.language),
+                })}{" "}
+                ·{" "}
+                {t("words", {
+                  count: note.body.trim() ? note.body.trim().split(/\s+/).length : 0,
+                })}
               </p>
               {mode === "edit" ? (
                 <div className="min-h-0 flex-1">
                   <EditorPane
+                    key={note.id}
                     note={note}
                     editorRef={editor}
                     world={completion}
@@ -675,12 +688,16 @@ function EditorPane({
   onOpenLink,
 }: {
   note: Note;
-  editorRef: React.Ref<NoteEditorHandle>;
+  editorRef: React.Ref<MarkdownEditorHandle>;
   world: () => CompletionWorld;
   resolves: (link: NoteLink) => boolean;
   onOpenLink: (link: NoteLink) => void;
 }) {
   const { t } = useTranslation("notes");
+  const links = useRef({ world, resolves, onOpenLink });
+  useLayoutEffect(() => {
+    links.current = { world, resolves, onOpenLink };
+  }, [world, resolves, onOpenLink]);
   const pending = useRef<{ id: string; text: string } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -700,15 +717,20 @@ function EditorPane({
   }, [flush]);
 
   return (
-    <NoteEditor
+    <MarkdownEditor
       ref={editorRef}
       docId={note.id}
       value={note.body}
       label={t("editorLabel")}
       placeholder={t("placeholder")}
-      world={world}
-      resolves={resolves}
-      onOpenLink={onOpenLink}
+      configure={() =>
+        noteMarkdownExtensions({
+          world: () => links.current.world(),
+          resolves: (link) => links.current.resolves(link),
+          open: (link) => links.current.onOpenLink(link),
+        })
+      }
+      aiEditing={{ documentKind: "note", getContext: () => ({ title: note.title }) }}
       onChange={(text) => {
         pending.current = { id: note.id, text };
         if (timer.current) clearTimeout(timer.current);

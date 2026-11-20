@@ -1,0 +1,91 @@
+{
+    "ai": {
+        "action": {
+            "rewrite": "Rewrite",
+            "shorten": "Shorten",
+            "expand": "Expand",
+            "summarize": "Summarize",
+            "custom": "Ask AI",
+            "continue": "Continue writing"
+        },
+        "scope": {
+            "selection": "Selection",
+            "block": "Current block",
+            "section": "Current section",
+            "insert": "Insert at cursor"
+        },
+        "scopeHint": {
+            "selection": "The selected text is sent to the model provider as the edit target.",
+            "block": "The Markdown block at the cursor is sent to the model provider as the edit target.",
+            "section": "The section containing the cursor is sent to the model provider as the edit target.",
+            "insert": "The cursor position is sent to the model provider as the insertion point."
+        },
+        "status": {
+            "started": "Generating a proposal…",
+            "stopped": "Generation stopped.",
+            "cancelled": "AI edit cancelled.",
+            "committed": "Accepted changes applied.",
+            "accept": "Change marked accepted.",
+            "reject": "Change marked rejected.",
+            "acceptLine": "Change at line {{line}} marked accepted.",
+            "rejectLine": "Change at line {{line}} marked rejected."
+        },
+        "selectionActions": "AI actions for the selection",
+        "chooseScope": "Choose what to edit",
+        "instruction": "What would you like to change?",
+        "model": "AI editing model",
+        "searchModels": "Search models…",
+        "settings": "AI provider settings",
+        "noModel": "Set up an AI provider to generate an edit.",
+        "fallback": "The selected model is unavailable. Using the active model.",
+        "nearby": "Nearby context",
+        "nearbyHint": "The document title, target and any nearby Markdown that fits are sent to the selected model provider.",
+        "tooLarge": "This edit exceeds the model’s context limit. Pick a smaller scope or a model with a larger context window.",
+        "emptyTarget": "This action needs text. Select text or use Ask AI to insert at the cursor.",
+        "emptyResult": "The model returned no text. You can retry the edit.",
+        "providerError": "Could not start the edit ({{error}}).",
+        "failed": "The AI edit was interrupted. You can retry it.",
+        "overlap": "This change overlaps the AI edit. Cancel the AI preview and make the change?",
+        "generate": "Generate",
+        "stop": "Stop",
+        "retry": "Retry",
+        "cancel": "Cancel",
+        "done": "Done",
+        "refine": "Refine",
+        "review": "Return to review",
+        "preview": "Proposed text",
+        "removed": "Proposed removal",
+        "added": "Proposed addition",
+        "accept": "Accept",
+        "reject": "Reject",
+        "acceptAll": "Accept all",
+        "rejectAll": "Reject all",
+        "changeAt": "Change at line {{line}}",
+        "acceptAt": "Accept change at line {{line}}",
+        "rejectAt": "Reject change at line {{line}}",
+        "hunkCount_zero": "No changes were proposed.",
+        "hunkCount_one": "{{count}} change to review.",
+        "hunkCount_two": "{{count}} changes to review.",
+        "hunkCount_other": "{{count}} changes to review.",
+        "documentKind": {
+            "note": {
+                "context": "Current note",
+                "contextHint": "The note title and complete Markdown are sent to the selected model provider for context.",
+                "whole": "Whole note",
+                "wholeHint": "The entire note is sent to the model provider as the edit target."
+            },
+            "skill": {
+                "context": "Current skill",
+                "contextHint": "The skill title and complete Markdown are sent to the selected model provider for context.",
+                "whole": "Whole skill",
+                "wholeHint": "The entire skill is sent to the model provider as the edit target."
+            },
+            "studio-output": {
+                "context": "Current output",
+                "contextHint": "The output title and complete Markdown are sent to the selected model provider for context.",
+                "whole": "Whole output",
+                "wholeHint": "The entire output is sent to the model provider as the edit target."
+            }
+        }
+    }
+}

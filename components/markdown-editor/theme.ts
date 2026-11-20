@@ -7,7 +7,7 @@ import { tags } from "@lezer/highlight";
  * follows light and dark mode and the accent. Logical properties keep it
  * right for right-to-left languages.
  */
-export const notesTheme = EditorView.theme({
+export const markdownTheme = EditorView.theme({
   "&": {
     height: "100%",
     color: "var(--foreground)",
@@ -127,7 +127,7 @@ export const notesTheme = EditorView.theme({
   },
 });
 
-export const notesHighlight = syntaxHighlighting(
+export const markdownHighlight = syntaxHighlighting(
   HighlightStyle.define([
     { tag: tags.strong, fontWeight: "700" },
     { tag: tags.emphasis, fontStyle: "italic" },

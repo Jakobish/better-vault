@@ -1,3 +1,5 @@
+import heMarkdownEditor from "@/locales/he/markdownEditor.json";
+import enMarkdownEditor from "@/locales/en/markdownEditor.json";
 import enChat from "@/locales/en/chat.json";
 import enCommon from "@/locales/en/common.json";
 import enHome from "@/locales/en/home.json";
@@ -26,6 +28,7 @@ export const resources = {
     workspace: enWorkspace,
     studio: enStudio,
     notes: enNotes,
+    markdownEditor: enMarkdownEditor,
     settings: enSettings,
     chat: enChat,
     sources: enSources,
@@ -36,6 +39,7 @@ export const resources = {
     workspace: heWorkspace,
     studio: heStudio,
     notes: heNotes,
+    markdownEditor: heMarkdownEditor,
     settings: heSettings,
     chat: heChat,
     sources: heSources,
